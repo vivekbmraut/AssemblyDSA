@@ -1,15 +1,17 @@
 .section .data
 
-pf: .string "\n--------LIST-----\n"
+pf: .string "\n--------LIST-------\n"
 pf1: .string "%d-> "
 pf2: .string "[BEG]-> "
 pf3: .string "[END]\n"
 pf4: .string "\nEMPTY LIST\n"
 pf5: .string "ADDRESS = %lu\n"
 .section .text
+
+
 .globl createList
 .type createList,@function
-createList:	#createList(int**p)
+createList:			#createList(int**p)
 pushl %ebp
 movl %esp,%ebp
 subl $40,%esp
@@ -18,8 +20,8 @@ pushl $0
 call getNode
 addl $4,%esp
 
-movl 8(%ebp),%ebx	#ebx=*p
-movl %eax,(%ebx)	#(ebx)=*p=eax
+movl 8(%ebp),%ebx			#ebx=*p
+movl %eax,(%ebx)			#(ebx)=*p=eax
 
 # movl -4(%ebp),%ebx 		#ebx=p
 
@@ -36,7 +38,7 @@ movl %esp,%ebp
 subl $4,%esp
 
 pushl $8
-call malloc		#8bytes allocate
+call malloc			#8bytes allocate
 addl $4,%esp
 
 
@@ -55,22 +57,138 @@ ret
 insertBeg:
 pushl %ebp
 movl %esp,%ebp
-subl $40,%esp
+subl $8,%esp
 
-pushl 12(%ebp)	#sending DATA
+pushl 12(%ebp)				#sending DATA
 call getNode
 addl $4,%esp
 
 movl %eax,-4(%ebp)			#*p=getNode(data);
 
+pushl -4(%ebp)
+pushl 8(%ebp)
+call genericInsert
+addl $4,%esp
 
-movl 8(%ebp),%ebx 			#ebx=pList
-movl -4(%ebp),%edx			#edx=p
-movl 4(%ebx),%ecx			#ecx=pList->link
-movl %ecx,4(%edx)			#p->link=pList->link
-movl %edx,4(%ebx)			#pList->link=p
+movl %ebp,%esp
+popl %ebp
+ret
 
 
+
+
+.globl delBeg
+.type delBeg,@function
+delBeg:						#delBeg(struct node *pList)
+pushl %ebp
+movl %esp,%ebp
+subl $8,%esp
+
+movl 8(%ebp),%ecx
+movl 4(%ecx),%ecx 		#ecx=pList->link
+
+cmpl $0,%ecx
+je empty1
+
+movl 8(%ebp),%ecx
+
+pushl 4(%ecx)
+pushl %ecx
+call genericDelete
+addl $8,%esp
+
+jmp end1
+
+empty1:
+pushl $pf4
+call printf
+addl $4,%esp
+
+end1:movl %ebp,%esp
+popl %ebp
+ret
+
+
+
+.globl insertLast
+.type insertLast,@function 	#inserLast(*plist,data)
+insertLast:
+pushl %ebp
+movl %esp,%ebp
+subl $4,%esp
+
+movl 8(%ebp),%ebx
+movl 4(%ebx),%ebx
+movl %ebx,-4(%ebp)		#next=pList->link
+
+movl -4(%ebp),%ecx
+movl 4(%ecx),%ecx		#ecx=next->link
+
+jmp while2
+body2:
+
+movl %ecx,-4(%ebp)		#next=next->link
+movl -4(%ebp),%ecx
+movl 4(%ecx),%ecx		#ecx=next->link
+
+while2:cmpl $0,%ecx		#next->link!=NULL
+jne body2
+
+pushl 12(%ebp)
+call getNode
+addl $4,%esp
+
+pushl %eax
+pushl -4(%ebp)
+call genericInsert
+addl $4,%esp
+
+movl %ebp,%esp
+popl %ebp
+ret
+
+
+
+.globl delLast
+.type delLast,@function
+delLast:
+pushl %ebp
+movl %esp,%ebp
+subl $12,%esp
+
+movl 8(%ebp),%edx
+movl 4(%edx),%ecx
+
+cmpl $0,%ecx
+je empty2
+
+#prev is edx
+#next is ecx
+
+movl 4(%ecx),%eax
+jmp while3
+body3:
+movl %ecx,%edx
+movl 4(%ecx),%ecx
+
+movl 4(%ecx),%eax
+while3:
+cmpl $0,%eax
+jne body3
+
+pushl %ecx
+pushl %edx
+call genericDelete
+addl $8,%esp
+
+jmp end2
+
+empty2:
+pushl $pf4
+call puts
+addl $4,%esp
+
+end2:
 movl %ebp,%esp
 popl %ebp
 ret
@@ -82,7 +200,7 @@ ret
 showList:
 pushl %ebp
 movl %esp,%ebp
-subl $40,%esp
+subl $4,%esp
 
 
 movl 8(%ebp),%ebx 		#ebx=pList
@@ -165,128 +283,48 @@ popl %ebp
 ret
 
 
-.globl delBeg
-.type delBeg,@function
-delBeg:
+
+
+#-------------------------------AUXILLIARY ROUTINES-------------------------
+
+.type genericInsert, @function
+.globl genericInsert								#8offset		#12offset
+genericInsert:				#genericInsert(struct node *beg_node,struct node *after_node)
 pushl %ebp
 movl %esp,%ebp
-subl $40,%esp
 
-movl 8(%ebp),%ebx
-movl 4(%ebx),%ebx 	#ebx=pList->link
-movl %ebx,-4(%ebp)	#next=pList->link
-
-cmpl $0,-4(%ebp)
-je empty1
-
-movl -4(%ebp),%ebx 		#ebx=next
-movl 8(%ebp),%ecx		#ecx=plist
-movl 4(%ebx),%ebx 		#ebx=next->link
-movl %ebx,4(%ecx)		#plist->link=next->link
-
-pushl -4(%ebp) 			#free(next)
-call free
-addl $4,%esp
-
-jmp end1
-
-empty1:
-pushl $pf4
-call printf
-addl $4,%esp
-
-end1:movl %ebp,%esp
-popl %ebp
-ret
-
-
-.globl insertLast
-.type insertLast,@function #inserLast(*plist,data)
-insertLast:
-pushl %ebp
-movl %esp,%ebp
-subl $40,%esp
-
-
-movl 8(%ebp),%ebx
-movl 4(%ebx),%ebx
-movl %ebx,-4(%ebp)		#next=pList->link
-
-movl -4(%ebp),%ecx
-movl 4(%ecx),%ecx		#ecx=next->link
-
-jmp while2
-body2:
-
-movl %ecx,-4(%ebp)		#next=next->link
-movl -4(%ebp),%ecx
-movl 4(%ecx),%ecx		#ecx=next->link
-
-while2:cmpl $0,%ecx		#next->link!=NULL
-jne body2
-
-
-pushl 12(%ebp)
-call getNode
-addl $4,%esp
-
-movl -4(%ebp),%ecx
-movl %eax,4(%ecx)		#next->link=getnode(data)
+movl 8(%ebp),%eax		#eax=beg_node
+movl 12(%ebp),%ecx		#ecx=after_node
+movl 4(%eax),%eax		#eax=eax->next i.e beg_node->next
+movl %eax,4(%ecx)		#ecx->next=eax i.e after_node-next
+movl 8(%ebp),%eax 		#eax=beg_node
+movl %ecx,4(%eax)		#eax->next i.e beg_node->next=ecx i.e after_node
 
 
 movl %ebp,%esp
 popl %ebp
 ret
 
-
-
-.globl delLast
-.type delLast,@function
-delLast:
+.type genericDelete, @function
+.globl genericDelete								#8offset			#12offset
+genericDelete:				#genericDelete(struct node *beg_node,struct node*after_node)
 pushl %ebp
 movl %esp,%ebp
-subl $40,%esp
-
-movl 8(%ebp),%ebx
-movl 4(%ebx),%ebx
-movl %ebx,-4(%ebp)		#next=pList->link
-
-cmpl $0,-4(%ebp)
-je empty2
-
-movl -4(%ebp),%ecx
-movl 4(%ecx),%ecx		#ecx=next->link
-
-movl 8(%ebp),%ebx
-movl %ebx,-8(%ebp)	#prev=pList
-
-jmp while3
-body3:
-movl -4(%ebp),%ebx
-movl %ebx,-8(%ebp)		#prev=next
-movl %ecx,-4(%ebp)		#next=next->link
-movl -4(%ebp),%ecx
-movl 4(%ecx),%ecx		#ecx=next->link
 
 
-while3:cmpl $0,%ecx
-jne body3
+movl 8(%ebp),%eax 			#eax=beg_node
+movl 12(%ebp),%ecx 			#ecx=after_node
+movl 4(%ecx),%edx			#edx=after_node->next
+movl %edx,4(%eax)			#eax->next=edx
+movl $0,4(%ecx)				#after_node->next=0
 
-
-movl -8(%ebp),%ebx
-movl $0,4(%ebx)
-
-pushl -4(%ebp)
+pushl %ecx
 call free
-addl $4,%esp 
-
-jmp end2
-empty2:
-pushl $pf4
-call printf
 addl $4,%esp
 
-end2:movl %ebp,%esp
+
+movl %ebp,%esp
 popl %ebp
 ret
+
 

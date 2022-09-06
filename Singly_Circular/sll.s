@@ -7,6 +7,7 @@ lf4: .string "\nList after deletion last\n"
 #pf1: .string "%d->\n"
 
 .section .text
+
 .globl main
 .type main,@function
 main:
@@ -98,7 +99,6 @@ addl $4,%esp
 
 
 
-
 pushl -4(%ebp)
 call destroy
 addl $4,%esp	
@@ -123,3 +123,4 @@ popl %ebp
 
 pushl $0
 call exit
+
