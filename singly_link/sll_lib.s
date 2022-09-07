@@ -6,8 +6,10 @@ pf2: .string "[BEG]-> "
 pf3: .string "[END]\n"
 pf4: .string "\nEMPTY LIST\n"
 pf5: .string "ADDRESS = %lu\n"
-.section .text
+pf6: .string "\ninsertAfter ERR:DATA NOT FOUND"
+pf7: .string "\ninsertBefore ERR:DATA NOT FOUND"
 
+.section .text
 
 .globl createList
 .type createList,@function
@@ -29,27 +31,6 @@ movl %ebp,%esp
 popl %ebp
 ret
 
-
-.globl getNode
-.type getNode,@function
-getNode:
-pushl %ebp
-movl %esp,%ebp
-subl $4,%esp
-
-pushl $8
-call malloc			#8bytes allocate
-addl $4,%esp
-
-
-movl 8(%ebp),%ebx
-movl %ebx,(%eax)		#p->data=dat
-movl $0,4(%eax)			#p->next=0
-
-
-movl %ebp,%esp
-popl %ebp
-ret
 
 
 .globl insertBeg
@@ -75,43 +56,8 @@ popl %ebp
 ret
 
 
-
-
-.globl delBeg
-.type delBeg,@function
-delBeg:						#delBeg(struct node *pList)
-pushl %ebp
-movl %esp,%ebp
-subl $8,%esp
-
-movl 8(%ebp),%ecx
-movl 4(%ecx),%ecx 		#ecx=pList->link
-
-cmpl $0,%ecx
-je empty1
-
-movl 8(%ebp),%ecx
-
-pushl 4(%ecx)
-pushl %ecx
-call genericDelete
-addl $8,%esp
-
-jmp end1
-
-empty1:
-pushl $pf4
-call printf
-addl $4,%esp
-
-end1:movl %ebp,%esp
-popl %ebp
-ret
-
-
-
 .globl insertLast
-.type insertLast,@function 	#inserLast(*plist,data)
+.type insertLast,@function 	#insertLast(*plist,data)
 insertLast:
 pushl %ebp
 movl %esp,%ebp
@@ -147,6 +93,140 @@ movl %ebp,%esp
 popl %ebp
 ret
 
+
+.type insertAfter, @function
+.globl insertAfter
+insertAfter:			#insertAfter(struct node *pList,int eData,int nData)
+pushl %ebp
+movl %esp,%ebp
+subl $4,%esp
+
+movl 8(%ebp),%ecx 
+movl 4(%ecx),%ecx
+
+cmpl $0,%ecx
+je empty3
+
+movl %ecx,-4(%ebp)
+jmp while4
+body4:
+movl (%ecx),%edx
+cmpl 12(%ebp),%edx
+jne cont
+pushl 16(%ebp)
+call getNode
+addl $4,%esp
+
+movl -4(%ebp),%ecx 			#ecx=curr
+movl 4(%ecx),%edx			#edx=ecx->next
+movl %edx,4(%eax)			#new_node->next=edx
+movl %eax,4(%ecx)			#ecx->next=new_node
+jmp end3
+
+cont:
+movl 4(%ecx),%ecx
+movl %ecx,-4(%ebp)
+while4:
+cmpl $0,%ecx
+jne body4
+
+pushl $pf6
+call puts
+addl $4,%esp
+
+jmp end3
+empty3:
+pushl $pf4
+call puts
+addl $4,%esp
+
+end3:
+movl %ebp,%esp
+popl %ebp
+ret
+
+
+.type insertBefore, @function
+.globl insertBefore
+insertBefore:					#insertBefore(struct node* pList,int eData,int nData)
+pushl %ebp
+movl %esp,%ebp
+subl $4,%esp
+
+movl 8(%ebp),%ecx
+movl 4(%ecx),%edx
+
+cmpl $0,%edx
+je empty4
+
+movl %ecx,-4(%ebp)
+jmp while5
+body5:
+movl (%edx),%edx
+cmpl 12(%ebp),%edx
+jne cont1
+pushl 16(%ebp)
+call getNode
+addl $4,%esp
+
+movl -4(%ebp),%ecx
+movl 4(%ecx),%edx
+movl %edx,4(%eax)
+movl %eax,4(%ecx)
+
+jmp end4
+cont1:
+movl 4(%ecx),%ecx
+movl %ecx,-4(%ebp)
+movl 4(%ecx),%edx
+while5:
+cmpl $0,%edx
+jne body5
+
+pushl $pf7
+call puts
+addl $4,%esp
+
+jmp end4
+empty4:
+pushl $pf4
+call puts
+addl $4,%esp
+
+end4:
+movl %ebp,%esp
+popl %ebp
+ret
+.globl delBeg
+.type delBeg,@function
+delBeg:						#delBeg(struct node *pList)
+pushl %ebp
+movl %esp,%ebp
+subl $8,%esp
+
+movl 8(%ebp),%ecx
+movl 4(%ecx),%ecx 		#ecx=pList->link
+
+cmpl $0,%ecx
+je empty1
+
+movl 8(%ebp),%ecx
+
+pushl 4(%ecx)
+pushl %ecx
+call genericDelete
+addl $8,%esp
+
+jmp end1
+
+empty1:
+pushl $pf4
+call printf
+addl $4,%esp
+
+end1:movl %ebp,%esp
+popl %ebp
+ret
 
 
 .globl delLast
@@ -327,4 +407,24 @@ movl %ebp,%esp
 popl %ebp
 ret
 
+.globl getNode
+.type getNode,@function
+getNode:
+pushl %ebp
+movl %esp,%ebp
+subl $4,%esp
+
+pushl $8
+call malloc			#8bytes allocate
+addl $4,%esp
+
+
+movl 8(%ebp),%ecx
+movl %ecx,(%eax)		#p->data=dat
+movl $0,4(%eax)			#p->next=0
+
+
+movl %ebp,%esp
+popl %ebp
+ret
 

@@ -4,6 +4,8 @@ lf1: .string "\nList after deletion Beg\n"
 lf2: .string "\nList after destruction\n"
 lf3: .string "\nList after insertion last\n"
 lf4: .string "\nList after deletion last\n"
+lf5: .string "\nList after insert after"
+lf6: .string "\nList after insert before"
 #pf1: .string "%d->\n"
 
 .section .text
@@ -77,6 +79,34 @@ jle body1
 
 pushl $lf3
 call printf
+addl $4,%esp
+
+pushl -4(%ebp)
+call showList
+addl $4,%esp
+
+pushl $201
+pushl $12
+pushl -4(%ebp)
+call insertAfter
+addl $12,%esp
+
+pushl $lf5
+call puts
+addl $4,%esp
+
+pushl -4(%ebp)
+call showList
+addl $4,%esp
+
+pushl $200
+pushl $201
+pushl -4(%ebp)
+call insertBefore
+addl $12,%esp
+
+pushl $lf6
+call puts
 addl $4,%esp
 
 pushl -4(%ebp)
