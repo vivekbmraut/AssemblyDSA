@@ -8,6 +8,7 @@ pf4: .string "\nEMPTY LIST\n"
 pf5: .string "ADDRESS = %lu\n"
 pf6: .string "\ninsertAfter ERR:DATA NOT FOUND"
 pf7: .string "\ninsertBefore ERR:DATA NOT FOUND"
+pf8: .string "\nremoveData ERR:DATA NOT FOUND"
 
 .section .text
 
@@ -197,9 +198,15 @@ end4:
 movl %ebp,%esp
 popl %ebp
 ret
-.globl delBeg
-.type delBeg,@function
-delBeg:						#delBeg(struct node *pList)
+
+
+
+
+
+
+.globl removeBeg
+.type removeBeg,@function
+removeBeg:						#removeBeg(struct node *pList)
 pushl %ebp
 movl %esp,%ebp
 subl $8,%esp
@@ -229,9 +236,9 @@ popl %ebp
 ret
 
 
-.globl delLast
-.type delLast,@function
-delLast:
+.globl removeLast
+.type removeLast,@function
+removeLast:
 pushl %ebp
 movl %esp,%ebp
 subl $12,%esp
@@ -272,6 +279,57 @@ end2:
 movl %ebp,%esp
 popl %ebp
 ret
+
+
+.type removeData, @function
+.globl removeData
+removeData:							#removeData(struct node* pList,int data)
+pushl %ebp 
+movl %esp,%ebp
+
+movl 8(%ebp),%ecx
+movl 4(%ecx),%edx
+
+cmpl $0,%edx
+je empty5
+
+
+jmp while6
+body6:
+movl (%edx),%edx
+cmpl 12(%ebp),%edx
+jne cont2
+movl 4(%ecx),%edx
+movl 4(%edx),%eax
+movl %eax,4(%ecx)
+
+pushl %edx
+call free
+addl $4,%esp
+jmp end5
+
+cont2:
+movl 4(%ecx),%ecx
+movl 4(%ecx),%edx
+while6:
+cmpl $0,%edx
+jne body6
+
+pushl $pf8
+call puts
+addl $4,%esp
+
+jmp end5
+empty5:
+pushl $pf4
+call puts
+addl $4,%esp
+
+end5:
+movl %ebp,%esp
+popl %ebp
+ret
+
 
 
 

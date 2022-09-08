@@ -6,6 +6,7 @@ lf3: .string "\nList after insertion last\n"
 lf4: .string "\nList after deletion last\n"
 lf5: .string "\nList after insert after"
 lf6: .string "\nList after insert before"
+lf7: .string "\nList after remove Data"
 #pf1: .string "%d->\n"
 
 .section .text
@@ -48,7 +49,7 @@ call showList
 addl $4,%esp
 
 pushl -4(%ebp)
-call delBeg		#delete ONE ELEMENT
+call removeBeg		#delete ONE ELEMENT
 addl $4,%esp
 
 pushl $lf1
@@ -115,8 +116,8 @@ addl $4,%esp
 
 
 pushl -4(%ebp)
-call delLast
-addl $8,%esp
+call removeLast
+addl $4,%esp
 
 
 pushl $lf4
@@ -128,6 +129,18 @@ call showList
 addl $4,%esp
 
 
+pushl $12
+pushl -4(%ebp)
+call removeData
+addl $8,%esp
+
+pushl $lf7
+call puts
+addl $4,%esp
+
+pushl -4(%ebp)
+call showList
+addl $4,%esp
 
 pushl -4(%ebp)
 call destroy
