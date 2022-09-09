@@ -1,4 +1,4 @@
-#local variabel till -32(%ebp)
+#local variable till -32(%ebp)
 .section .data
 dfintro: .string "\n**********************************************\nDEDICATED TO YOGESHWAR SIR\n**********************************************\n"
 dfln: .string "\n"

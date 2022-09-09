@@ -5,10 +5,7 @@ pf1: .string "%d-> "
 pf2: .string "[BEG]-> "
 pf3: .string "[END]\n"
 pf4: .string "\nEMPTY LIST\n"
-pf5: .string "ADDRESS = %lu\n"
-pf6: .string "\ninsertAfter ERR:DATA NOT FOUND"
-pf7: .string "\ninsertBefore ERR:DATA NOT FOUND"
-pf8: .string "\nremoveData ERR:DATA NOT FOUND"
+pf5: .string "Uninitialized List"
 
 .section .text
 
@@ -97,7 +94,7 @@ ret
 
 .type insertAfter, @function
 .globl insertAfter
-insertAfter:			#insertAfter(struct node *pList,int eData,int nData)
+insertAfter:			#bool insertAfter(struct node *pList,int eData,int nData)
 pushl %ebp
 movl %esp,%ebp
 subl $4,%esp
@@ -122,6 +119,7 @@ movl -4(%ebp),%ecx 			#ecx=curr
 movl 4(%ecx),%edx			#edx=ecx->next
 movl %edx,4(%eax)			#new_node->next=edx
 movl %eax,4(%ecx)			#ecx->next=new_node
+movl $1,%eax 				#return true
 jmp end3
 
 cont:
@@ -131,10 +129,7 @@ while4:
 cmpl $0,%ecx
 jne body4
 
-pushl $pf6
-call puts
-addl $4,%esp
-
+movl $0,%eax 				#return false
 jmp end3
 empty3:
 pushl $pf4
@@ -149,7 +144,7 @@ ret
 
 .type insertBefore, @function
 .globl insertBefore
-insertBefore:					#insertBefore(struct node* pList,int eData,int nData)
+insertBefore:			#bool insertBefore(struct node* pList,int eData,int nData)
 pushl %ebp
 movl %esp,%ebp
 subl $4,%esp
@@ -174,7 +169,7 @@ movl -4(%ebp),%ecx
 movl 4(%ecx),%edx
 movl %edx,4(%eax)
 movl %eax,4(%ecx)
-
+movl $1,%eax 			#return true
 jmp end4
 cont1:
 movl 4(%ecx),%ecx
@@ -184,9 +179,7 @@ while5:
 cmpl $0,%edx
 jne body5
 
-pushl $pf7
-call puts
-addl $4,%esp
+movl $0,%eax 			#return false
 
 jmp end4
 empty4:
@@ -283,7 +276,7 @@ ret
 
 .type removeData, @function
 .globl removeData
-removeData:							#removeData(struct node* pList,int data)
+removeData:							#bool removeData(struct node* pList,int data)
 pushl %ebp 
 movl %esp,%ebp
 
@@ -306,6 +299,7 @@ movl %eax,4(%ecx)
 pushl %edx
 call free
 addl $4,%esp
+movl $1,%eax
 jmp end5
 
 cont2:
@@ -315,10 +309,7 @@ while6:
 cmpl $0,%edx
 jne body6
 
-pushl $pf8
-call puts
-addl $4,%esp
-
+movl $0,%eax
 jmp end5
 empty5:
 pushl $pf4
@@ -342,6 +333,9 @@ subl $4,%esp
 
 
 movl 8(%ebp),%ebx 		#ebx=pList
+test %ebx,%ebx
+jz unin
+
 movl 4(%ebx),%edx		#edx=pList->link
 movl %edx,-4(%ebp)		#next=pList->link
 
@@ -377,14 +371,61 @@ addl $4,%esp
 
 
 jmp end
+unin:
+pushl $pf5
+call puts
+addl $4,%esp
+jmp end
 empty:
 pushl $pf4
 call printf
-addl $4,%esp			#printing empty and return
+addl $4,%esp				#printing empty and return
 
 end:movl %ebp,%esp
 popl %ebp
 ret
+
+
+.type reverseList,@function
+.globl reverseList
+reverseList:				#reverseList(struct node* pList)
+pushl %ebp
+movl %esp,%ebp
+
+movl $0,%eax 				#p1=eax
+movl 8(%ebp),%edx
+movl 4(%edx),%edx			#p3=edx
+
+test %edx,%edx
+jz empty6
+movl %edx,%ecx 				#p2=ecx
+
+jmp while7
+body7:
+movl 4(%edx),%edx
+
+movl %eax,4(%ecx)
+movl %ecx,%eax
+movl %edx,%ecx
+
+while7:
+cmpl $0,%ecx
+jne body7
+
+movl 8(%ebp),%ecx
+movl %eax,4(%ecx)
+jmp end6
+
+empty6:
+pushl $pf4
+call puts
+addl $4,%esp
+
+end6:
+movl %ebp,%esp
+pop %ebp
+ret
+
 
 
 .globl destroy
@@ -394,9 +435,10 @@ pushl %ebp
 movl %esp,%ebp
 subl $40,%esp
 
-movl 8(%ebp),%ebx 	#ebx=plist
-movl 4(%ebx),%ecx	#ecx=pList
-movl %ecx,-4(%ebp)	#next=pList->link
+movl 8(%ebp),%ebx 			#ebx=plist
+movl (%ebx),%ebx 			#ebx=*plist
+movl 4(%ebx),%ecx			#ecx=pList
+movl %ecx,-4(%ebp)			#next=pList->link
 movl $0,4(%ebx)
 
 movl $0,-8(%ebp)
@@ -404,17 +446,20 @@ movl $0,-8(%ebp)
 jmp while1
 body1:
 movl -4(%ebp),%ebx
-movl %ebx,-8(%ebp)		#prev=next
+movl %ebx,-8(%ebp)			#prev=next
 
 movl 4(%ebx),%ecx
-movl %ecx,-4(%ebp)		#next=next->link
+movl %ecx,-4(%ebp)			#next=next->link
 
 pushl -8(%ebp)
 call free
 addl $4,%esp
 
-while1:cmpl $0,-4(%ebp)	#next!=0
+while1:cmpl $0,-4(%ebp)		#next!=0
 jne body1
+
+movl 8(%ebp),%ebx
+movl $0,(%ebx)
 
 movl %ebp,%esp
 popl %ebp

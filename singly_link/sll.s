@@ -7,6 +7,10 @@ lf4: .string "\nList after deletion last\n"
 lf5: .string "\nList after insert after"
 lf6: .string "\nList after insert before"
 lf7: .string "\nList after remove Data"
+lf8: .string "\nInsertAfter unsuccessful"
+lf9: .string "\nInsertBefore unsuccessful"
+lf10: .string "\nRemoveData unsuccessful"
+lf11: .string "\nList Reversal"
 #pf1: .string "%d->\n"
 
 .section .text
@@ -92,6 +96,8 @@ pushl -4(%ebp)
 call insertAfter
 addl $12,%esp
 
+test %eax,%eax
+jz err1
 pushl $lf5
 call puts
 addl $4,%esp
@@ -99,13 +105,21 @@ addl $4,%esp
 pushl -4(%ebp)
 call showList
 addl $4,%esp
+jmp scs1
+err1:
+pushl $lf8
+call puts
+addl $4,%esp
 
+scs1:
 pushl $200
 pushl $201
 pushl -4(%ebp)
 call insertBefore
 addl $12,%esp
 
+test %eax,%eax
+jz err2
 pushl $lf6
 call puts
 addl $4,%esp
@@ -113,6 +127,26 @@ addl $4,%esp
 pushl -4(%ebp)
 call showList
 addl $4,%esp
+jmp scs2
+
+err2:
+pushl $lf9
+call puts
+addl $4,%esp
+
+scs2:
+pushl -4(%ebp)
+call reverseList
+addl $4,%esp
+
+pushl $lf11
+call puts
+addl $4,%esp
+
+pushl -4(%ebp)
+call showList
+addl $4,%esp
+
 
 
 pushl -4(%ebp)
@@ -134,6 +168,8 @@ pushl -4(%ebp)
 call removeData
 addl $8,%esp
 
+test %eax,%eax
+jz err3
 pushl $lf7
 call puts
 addl $4,%esp
@@ -141,8 +177,17 @@ addl $4,%esp
 pushl -4(%ebp)
 call showList
 addl $4,%esp
+jmp scs3
 
-pushl -4(%ebp)
+err3:
+pushl $lf10
+call puts
+addl $4,%esp
+
+scs3:
+
+leal -4(%ebp),%ebx
+pushl %ebx
 call destroy
 addl $4,%esp	
 
@@ -155,15 +200,8 @@ call showList
 addl $4,%esp
 
 
-movl -4(%ebp),%ebx
-pushl %ebx
-call free
-addl $4,%esp
-
-
 movl %ebp,%esp
 popl %ebp
-
 pushl $0
 call exit
 
