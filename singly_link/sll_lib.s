@@ -63,6 +63,21 @@ subl $4,%esp
 
 movl 8(%ebp),%ebx
 movl 4(%ebx),%ebx
+
+test %ebx,%ebx
+jnz nempt
+pushl 12(%ebp)
+call getNode
+addl $4,%esp
+
+pushl %eax
+pushl 8(%ebp)
+call genericInsert
+addl $8,%esp
+
+jmp end0
+
+nempt:
 movl %ebx,-4(%ebp)		#next=pList->link
 
 movl -4(%ebp),%ecx
@@ -87,6 +102,7 @@ pushl -4(%ebp)
 call genericInsert
 addl $4,%esp
 
+end0:
 movl %ebp,%esp
 popl %ebp
 ret
@@ -115,10 +131,10 @@ pushl 16(%ebp)
 call getNode
 addl $4,%esp
 
-movl -4(%ebp),%ecx 			#ecx=curr
-movl 4(%ecx),%edx			#edx=ecx->next
-movl %edx,4(%eax)			#new_node->next=edx
-movl %eax,4(%ecx)			#ecx->next=new_node
+pushl %eax
+pushl -4(%ebp)
+call genericInsert
+addl $8,%esp 
 movl $1,%eax 				#return true
 jmp end3
 
@@ -165,10 +181,10 @@ pushl 16(%ebp)
 call getNode
 addl $4,%esp
 
-movl -4(%ebp),%ecx
-movl 4(%ecx),%edx
-movl %edx,4(%eax)
-movl %eax,4(%ecx)
+pushl %eax
+pushl -4(%ebp)
+call genericInsert
+addl $8,%esp
 movl $1,%eax 			#return true
 jmp end4
 cont1:
@@ -212,7 +228,6 @@ je empty1
 
 movl 8(%ebp),%ecx
 
-pushl 4(%ecx)
 pushl %ecx
 call genericDelete
 addl $8,%esp
@@ -256,7 +271,7 @@ while3:
 cmpl $0,%eax
 jne body3
 
-pushl %ecx
+
 pushl %edx
 call genericDelete
 addl $8,%esp
@@ -292,13 +307,11 @@ body6:
 movl (%edx),%edx
 cmpl 12(%ebp),%edx
 jne cont2
-movl 4(%ecx),%edx
-movl 4(%edx),%eax
-movl %eax,4(%ecx)
 
-pushl %edx
-call free
+pushl %ecx
+call genericDelete
 addl $4,%esp
+
 movl $1,%eax
 jmp end5
 
@@ -384,6 +397,36 @@ addl $4,%esp				#printing empty and return
 end:movl %ebp,%esp
 popl %ebp
 ret
+
+
+.type appendList,@function
+.globl appendList
+appendList:					#appendList(struct node *plist1,struct node *plist2)
+pushl %ebp
+movl %esp,%ebp
+
+movl 8(%ebp),%ecx
+
+jmp while8
+body8:
+movl 4(%ecx),%ecx
+while8:
+movl 4(%ecx),%edx
+cmpl $0,%edx
+jne body8
+
+movl 12(%ebp),%eax
+movl 4(%eax),%eax
+movl %eax,4(%ecx)
+
+pushl 12(%ebp)
+call free
+addl $4,%esp
+
+movl %ebp,%esp
+popl %ebp
+ret
+
 
 
 .type reverseList,@function
@@ -472,31 +515,32 @@ ret
 
 .type genericInsert, @function
 .globl genericInsert								#8offset		#12offset
-genericInsert:				#genericInsert(struct node *beg_node,struct node *after_node)
+genericInsert:				#genericInsert(struct node *beg_node,struct node *mid_node)
 pushl %ebp
 movl %esp,%ebp
 
-movl 8(%ebp),%eax		#eax=beg_node
-movl 12(%ebp),%ecx		#ecx=after_node
-movl 4(%eax),%eax		#eax=eax->next i.e beg_node->next
-movl %eax,4(%ecx)		#ecx->next=eax i.e after_node-next
-movl 8(%ebp),%eax 		#eax=beg_node
-movl %ecx,4(%eax)		#eax->next i.e beg_node->next=ecx i.e after_node
+movl 8(%ebp),%eax			#eax=beg_node
+movl 12(%ebp),%ecx			#ecx=after_node
+movl 4(%eax),%eax			#eax=eax->next i.e beg_node->next
+movl %eax,4(%ecx)			#ecx->next=eax i.e mid_node-next
+movl 8(%ebp),%eax 			#eax=beg_node
+movl %ecx,4(%eax)			#eax->next i.e beg_node->next=ecx i.e mid_node
 
 
 movl %ebp,%esp
 popl %ebp
 ret
 
+
 .type genericDelete, @function
-.globl genericDelete								#8offset			#12offset
-genericDelete:				#genericDelete(struct node *beg_node,struct node*after_node)
+.globl genericDelete
+genericDelete:				#genericDelete(struct node *beg_node)
 pushl %ebp
 movl %esp,%ebp
 
 
 movl 8(%ebp),%eax 			#eax=beg_node
-movl 12(%ebp),%ecx 			#ecx=after_node
+movl 4(%eax),%ecx 			#ecx=after_node
 movl 4(%ecx),%edx			#edx=after_node->next
 movl %edx,4(%eax)			#eax->next=edx
 movl $0,4(%ecx)				#after_node->next=0
@@ -510,6 +554,7 @@ movl %ebp,%esp
 popl %ebp
 ret
 
+
 .globl getNode
 .type getNode,@function
 getNode:
@@ -518,7 +563,7 @@ movl %esp,%ebp
 subl $4,%esp
 
 pushl $8
-call malloc			#8bytes allocate
+call malloc				#8bytes allocate
 addl $4,%esp
 
 
