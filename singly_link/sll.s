@@ -13,6 +13,9 @@ lf10: .string "\nRemoveData unsuccessful"
 lf11: .string "\nList Reversal"
 lf12: .string "\nList2:"
 lf13: .string "\nList1 after List2 append:"
+lf14: .string "\nLength :%d\n"
+lf15: .string "\n---------------Array----------------"
+lf16: .string "%d  "
 #pf1: .string "%d->\n"
 
 .section .text
@@ -25,7 +28,10 @@ movl %esp,%ebp
 subl $40,%esp
 
 #-4(%ebp)=plist
+#-8(%ebp)=i
 #-12(%ebp)=plist2
+#-16(%ebp)=array
+#-20(%ebp)=size
 
 leal -4(%ebp),%ebx
 pushl %ebx
@@ -230,6 +236,41 @@ addl $4,%esp
 pushl -4(%ebp)
 call showList
 addl $4,%esp
+
+
+leal -20(%ebp),%ecx
+leal -16(%ebp),%edx
+pushl %ecx
+pushl %edx
+pushl -4(%ebp)
+call listToArray
+addl $12,%esp
+
+pushl $lf15
+call puts
+addl $4,%esp
+
+
+movl $0,-8(%ebp)
+movl $0,%ecx
+jmp for3
+body3:
+movl -16(%ebp),%edx
+pushl (%edx,%ecx,4)
+pushl $lf16
+call printf
+addl $8,%esp
+
+addl $1,-8(%ebp)
+movl -8(%ebp),%ecx
+
+for3:cmpl -20(%ebp),%ecx
+jl body3
+
+pushl -16(%ebp)
+call free
+addl $4,%esp
+movl $0,-16(%ebp)
 
 leal -4(%ebp),%ebx
 pushl %ebx

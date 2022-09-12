@@ -1,5 +1,5 @@
 .section .data
-
+pfdump: .string "\nDUMP"
 pf: .string "\n--------LIST-------\n"
 pf1: .string "%d-> "
 pf2: .string "[BEG]-> "
@@ -335,6 +335,30 @@ popl %ebp
 ret
 
 
+.type getLength,@function
+.globl getLength
+getLength:			#int getLength(struct node *pList)
+pushl %ebp
+movl %esp,%ebp
+
+movl 8(%ebp),%edx
+movl 4(%edx),%edx
+
+xorl %eax,%eax
+jmp while9
+body9:
+addl $1,%eax
+movl 4(%edx),%edx
+
+while9:
+cmpl $0,%edx
+jne body9
+
+
+movl %ebp,%esp
+popl %ebp
+ret
+
 
 
 .globl showList
@@ -397,6 +421,65 @@ addl $4,%esp				#printing empty and return
 end:movl %ebp,%esp
 popl %ebp
 ret
+
+
+.type listToArray,@function
+.globl listToArray
+listToArray:					#listToArray(struct node *pList,int **arr,int *size)
+pushl %ebp
+movl %esp,%ebp
+subl $8,%esp
+pushl %ebx
+
+pushl 8(%ebp)
+call getLength
+addl $4,%esp
+
+movl %eax,-4(%ebp)		#length
+
+sall $2,%eax
+pushl %eax
+call malloc
+addl $4,%esp
+
+
+movl %eax,-8(%ebp)		#array
+
+movl 8(%ebp),%ecx
+movl 4(%ecx),%ecx
+movl $0,%edx
+
+jmp while10
+body10:
+
+movl -8(%ebp),%eax
+movl (%ecx),%ebx
+movl %ebx,(%eax,%edx,4)
+
+movl 4(%ecx),%ecx
+addl $1,%edx
+while10:
+cmpl $0,%ecx
+jne body10
+
+
+
+movl 12(%ebp),%ecx
+movl -8(%ebp),%edx
+movl %edx,(%ecx)
+
+movl 16(%ebp),%ecx
+movl -4(%ebp),%edx
+movl %edx,(%ecx)
+
+movl $1,%eax
+
+popl %ebx
+movl %ebp,%esp
+popl %ebp
+ret
+
+
 
 
 .type appendList,@function
