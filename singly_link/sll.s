@@ -1,7 +1,7 @@
 .section .data
 lf: .string "\nList1:\n"
 lf1: .string "\nList after deletion Beg\n"
-lf2: .string "\nList after destruction\n"
+lf2: .string "\nList1 after destruction"
 lf3: .string "\nList after insertion last\n"
 lf4: .string "\nList after deletion last\n"
 lf5: .string "\nList after insert after"
@@ -16,6 +16,8 @@ lf13: .string "\nList1 after List2 append:"
 lf14: .string "\nLength :%d\n"
 lf15: .string "\n---------------Array----------------"
 lf16: .string "%d  "
+lf17: .string "\nList3:"
+lf18: .string "\nList3 after destruction"
 #pf1: .string "%d->\n"
 
 .section .text
@@ -32,6 +34,7 @@ subl $40,%esp
 #-12(%ebp)=plist2
 #-16(%ebp)=array
 #-20(%ebp)=size
+#-24(%ebp)=plist3 created from array to list
 
 leal -4(%ebp),%ebx
 pushl %ebx
@@ -267,10 +270,41 @@ movl -8(%ebp),%ecx
 for3:cmpl -20(%ebp),%ecx
 jl body3
 
+pushl -20(%ebp)				#size
+pushl -16(%ebp)				#array
+call arrayToList
+addl $8,%esp
+
+movl %eax,-24(%ebp)				#List3
+
+pushl $lf17
+call puts
+addl $4,%esp
+
+pushl -24(%ebp)
+call showList
+addl $4,%esp
+
+
 pushl -16(%ebp)
 call free
 addl $4,%esp
 movl $0,-16(%ebp)
+
+
+leal -24(%ebp),%ebx
+pushl %ebx
+call destroy
+addl $4,%esp	
+
+pushl $lf18
+call puts
+addl $4,%esp
+
+pushl -24(%ebp)
+call showList
+addl $4,%esp
+
 
 leal -4(%ebp),%ebx
 pushl %ebx
@@ -278,7 +312,7 @@ call destroy
 addl $4,%esp	
 
 pushl $lf2
-call printf
+call puts
 addl $4,%esp
 
 pushl -4(%ebp)

@@ -14,7 +14,7 @@ pf5: .string "Uninitialized List"
 createList:			#createList(int**p)
 pushl %ebp
 movl %esp,%ebp
-subl $40,%esp
+
 
 pushl $0
 call getNode
@@ -442,7 +442,6 @@ pushl %eax
 call malloc
 addl $4,%esp
 
-
 movl %eax,-8(%ebp)		#array
 
 movl 8(%ebp),%ecx
@@ -462,8 +461,6 @@ while10:
 cmpl $0,%ecx
 jne body10
 
-
-
 movl 12(%ebp),%ecx
 movl -8(%ebp),%edx
 movl %edx,(%ecx)
@@ -480,6 +477,41 @@ popl %ebp
 ret
 
 
+.type arrayToList, @function
+.globl arrayToList
+arrayToList:		#struct node *arrayToList(int *p,int size)
+pushl %ebp
+movl %esp,%ebp
+subl $8,%esp
+
+leal -4(%ebp),%ecx
+pushl %ecx
+call createList
+addl $4,%esp
+
+
+movl $0,%ecx
+movl %ecx,-8(%ebp)
+jmp while11
+body11:
+movl 8(%ebp),%edx
+
+pushl (%edx,%ecx,4)
+pushl -4(%ebp)
+call insertLast
+addl $4,%esp
+
+addl $1,-8(%ebp)
+movl -8(%ebp),%ecx
+
+while11:cmpl 12(%ebp),%ecx
+jl body11
+
+movl -4(%ebp),%eax
+
+movl %ebp,%esp
+popl %ebp
+ret
 
 
 .type appendList,@function
