@@ -18,6 +18,8 @@ lf15: .string "\n---------------Array----------------"
 lf16: .string "%d  "
 lf17: .string "\nList3:"
 lf18: .string "\nList3 after destruction"
+lf19: .string "\nList4:List1 Concat List2"
+lf20: .string "\nList4 after destruction"
 #pf1: .string "%d->\n"
 
 .section .text
@@ -35,6 +37,7 @@ subl $40,%esp
 #-16(%ebp)=array
 #-20(%ebp)=size
 #-24(%ebp)=plist3 created from array to list
+#-28(%ebp)=plist4 created from concat of plist1 &plist2
 
 leal -4(%ebp),%ebx
 pushl %ebx
@@ -227,6 +230,21 @@ addl $4,%esp
 
 pushl -12(%ebp)
 pushl -4(%ebp)
+call concatLists
+addl $8,%esp
+
+movl %eax,-28(%ebp)
+
+pushl $lf19
+call puts
+addl $4,%esp
+
+pushl -28(%ebp)
+call showList
+addl $4,%esp
+
+pushl -12(%ebp)
+pushl -4(%ebp)
 call appendList
 addl $8,%esp
 
@@ -286,6 +304,7 @@ call showList
 addl $4,%esp
 
 
+#----------------------------------Release Zone-----------------------
 pushl -16(%ebp)
 call free
 addl $4,%esp
@@ -305,6 +324,18 @@ pushl -24(%ebp)
 call showList
 addl $4,%esp
 
+leal -28(%ebp),%ecx
+pushl %ecx
+call destroy
+addl $4,%esp
+
+pushl $lf20
+call puts
+addl $4,%esp
+
+pushl -28(%ebp)
+call showList
+addl $4,%esp
 
 leal -4(%ebp),%ebx
 pushl %ebx

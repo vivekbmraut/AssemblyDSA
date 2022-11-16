@@ -422,6 +422,62 @@ end:movl %ebp,%esp
 popl %ebp
 ret
 
+.type concatLists,@function
+.globl concatLists				#list* concatList(list* plist1,list* plist2)
+concatLists:
+pushl %ebp
+movl %esp,%ebp
+subl $8,%esp
+
+leal -4(%ebp),%ecx
+pushl %ecx
+call createList
+addl $4,%esp
+
+movl 8(%ebp),%ecx 		#ecx=plist1
+movl 4(%ecx),%ecx 		#ecx=ecx->next=plist1->next
+movl %ecx,-8(%ebp)		#p_run=ecx
+
+jmp while12
+body12:
+pushl (%ecx)
+pushl -4(%ebp)
+call insertLast
+addl $8,%esp
+
+movl -8(%ebp),%ecx
+movl 4(%ecx),%ecx
+movl %ecx,-8(%ebp)
+
+while12:cmpl $0,%ecx
+jne body12
+
+movl 12(%ebp),%ecx
+movl 4(%ecx),%ecx
+movl %ecx,-8(%ebp)
+
+jmp while13
+body13:
+pushl (%ecx)
+pushl -4(%ebp)
+call insertLast
+addl $8,%esp
+
+movl -8(%ebp),%ecx
+movl 4(%ecx),%ecx
+movl %ecx,-8(%ebp)
+
+while13:cmpl $0,%ecx
+jne body13
+
+movl -4(%ebp),%eax
+
+movl %ebp,%esp
+pop %ebp
+ret
+
+
+
 
 .type listToArray,@function
 .globl listToArray
