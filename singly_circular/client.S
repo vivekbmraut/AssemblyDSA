@@ -43,6 +43,13 @@ clmsg:
     .string "Concat List1 to List2: "
 grlmsg:
     .string "Reversed List1"
+lTAmsg:
+    .string "list3 to array :"
+p_arrmsg:
+    .string "p_arr[%d]: %d\n"
+parr_to_listmsg:
+    .string "p_arr to list: "
+
 .section .text
 .globl main
 .type main, @function
@@ -50,7 +57,7 @@ grlmsg:
 main:
     pushl %ebp
     movl %esp,%ebp
-    subl $32,%esp
+    subl $40,%esp
 
     movl $0,-4(%ebp)        #p_list
     movl $0,-8(%ebp)        #i
@@ -60,6 +67,8 @@ main:
     movl $0, -24(%ebp)      #p_list3
     movl $0, -28(%ebp)      #p_list4
     movl $0, -32(%ebp)      #p_list5
+    movl $0, -36(%ebp)      #p_arr
+    movl $0, -40(%ebp)      #size
 
     leal -4(%ebp), %ebx
     pushl %ebx
@@ -297,13 +306,55 @@ mainloopend1:
     pushl -24(%ebp)
     call showList
     addl $8,%esp
+
+    leal -40(%ebp), %ebx
+    pushl %ebx
+    leal -36(%ebp), %ebx
+    pushl %ebx
+    pushl -24(%ebp)
+    call listToArray
+    addl $12, %esp
     
+    pushl $lTAmsg
+    call puts
+    addl $4,%esp
+
+    movl $0, -8(%ebp)
+maincnd2:
+    movl -8(%ebp), %ecx
+    cmpl -40(%ebp), %ecx
+    jge mainloopend2
+    
+    movl -36(%ebp), %ebx
+    pushl (%ebx, %ecx, 4)
+    pushl %ecx
+    pushl $p_arrmsg
+    call printf
+    addl $12,%esp
+
+    movl -8(%ebp), %ecx
+    addl $1,%ecx
+    movl %ecx, -8(%ebp)
+    jmp maincnd2
+mainloopend2:
+
     pushl -20(%ebp)
     pushl -16(%ebp)
     call concatList
     addl $8,%esp
 
     movl $0, -20(%ebp)
+
+    pushl -40(%ebp)
+    pushl -36(%ebp)
+    call arrayToList
+    addl $8,%esp
+
+    movl %eax, -20(%ebp)
+    pushl $parr_to_listmsg
+    pushl -20(%ebp)
+    call showList
+    addl $8,%esp
 
     pushl $clmsg
     pushl -16(%ebp)
@@ -329,6 +380,10 @@ mainloopend1:
     pushl -24(%ebp)
     call showList
     addl $8,%esp
+
+    pushl -36(%ebp)
+    call free
+    addl $4,%esp
 
     leal -32(%ebp), %ebx
     pushl %ebx
