@@ -193,14 +193,6 @@ insertBefore:
 
     movl $0, -4(%ebp)
 
-    pushl 8(%ebp)
-    call isEmpty
-    addl $4,%esp
-
-    movl $LIST_EMPTY, %ecx
-    cmpl $TRUE,%eax
-    cmove %ecx, %eax
-    je iBend
 
     pushl 12(%ebp)
     pushl 8(%ebp)
@@ -227,6 +219,67 @@ insertBefore:
 
     movl $SUCCESS, %eax
 iBend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl getStart
+.type getStart ,@function        #prototype: int getStart(struct node* p_list, int* start_data)
+getStart:
+    pushl %ebp
+    movl %esp, %ebp
+
+    pushl 8(%ebp)
+    call isEmpty
+    addl $4,%esp
+
+    movl $LIST_EMPTY, %ecx
+    cmpl $TRUE,%eax
+    cmove %ecx, %eax
+    je gSend
+   
+    movl 8(%ebx), %ebx
+    movl 12(%ebp), %ecx
+    movl (%ebx), %edx
+    movl %edx, (%ecx)
+    movl $SUCCESS, %eax
+
+gSend:    
+    movl %esp, %ebp
+    popl %ebp
+    ret
+
+.globl getEnd
+.type getEnd, @function
+getEnd:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $4, %esp
+    
+    movl $0, -4(%ebp)
+
+    pushl 8(%ebp)
+    call isEmpty
+    addl $4,%esp
+
+    movl $LIST_EMPTY, %ecx
+    cmpl $TRUE, %eax
+    cmove %ecx, %eax
+    je gEend
+
+    pushl 8(%ebp)
+    call getLastNode
+    addl $4,%esp
+
+    movl %eax, -4(%ebp)
+
+    movl -4(%ebp), %ebx
+    movl 12(%ebp), %ecx
+    movl (%ebx), %edx
+    movl %edx, (%ecx)
+    movl $SUCCESS, %eax
+
+gEend:
     movl %ebp, %esp
     popl %ebp
     ret
