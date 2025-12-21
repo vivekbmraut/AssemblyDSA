@@ -38,7 +38,7 @@ l3msg:
 rlmsg:
     .string "Reverse List: "
 almsg:
-    .string "After List1 and List2 addition: "
+    .string "After List1 append to List2: "
 clmsg:
     .string "Concat List1 to List2: "
 grlmsg:
@@ -232,7 +232,7 @@ mainloopend1:
     call createList
     addl $4,%esp
 
-    pushl $4
+    pushl $60
     pushl -16(%ebp)
     call insertStart
     addl $8,%esp
@@ -285,12 +285,12 @@ mainloopend1:
 
     pushl -20(%ebp)
     pushl -16(%ebp)
-    call addList
+    call concatList
     addl $8,%esp
 
     movl %eax, -28(%ebp)
 
-    pushl $almsg
+    pushl $clmsg
     pushl -28(%ebp)
     call showList
     addl $8,%esp
@@ -340,7 +340,7 @@ mainloopend2:
 
     pushl -20(%ebp)
     pushl -16(%ebp)
-    call concatList
+    call appendList
     addl $8,%esp
 
     movl $0, -20(%ebp)
@@ -356,7 +356,7 @@ mainloopend2:
     call showList
     addl $8,%esp
 
-    pushl $clmsg
+    pushl $almsg
     pushl -16(%ebp)
     call showList
     addl $8,%esp

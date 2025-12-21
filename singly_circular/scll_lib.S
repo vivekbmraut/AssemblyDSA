@@ -9,13 +9,6 @@ str3:
 mem_err:
     .string "ERROR IN MEMORY ALLOCATION"
 
-.globl addr
-addr:
-    .string "addr: %p\n"
-.globl value
-value:
-    .string "value: %d\n"
-
 .equ SUCCESS,0
 .equ LIST_DATA_NOT_FOUND,1
 .equ LIST_EMPTY,2
@@ -418,9 +411,9 @@ rDend:
     popl %ebp
     ret
 
-.globl addList
-.type addList, @function
-addList:
+.globl concatList
+.type concatList, @function
+concatList:
     pushl %ebp
     movl %esp, %ebp
     subl $8, %esp
@@ -484,9 +477,9 @@ aLend2:
     popl %ebp
     ret
 
-.globl concatList
-.type concatList, @function
-concatList:
+.globl appendList
+.type appendList, @function
+appendList:
     pushl %ebp
     movl %esp,%ebp
     subl $8, %esp
@@ -568,69 +561,77 @@ mergeList:
     movl 4(%ebx), %ebx
     movl %ebx, -12(%ebp)
 
-mLcnd1:
-    movl -8(%ebp),%ebx
-    cmpl %ebx, 8(%ebp)
-    jne mLcnd2
-mLcnd11:
+mLwhile1Start:
+    movl -8(%ebp), %ebx
+    cmpl %ebx, 8(%ebx)
+    jne mLif2Start
+    
+mLwhile2Start:
     movl -12(%ebp), %ebx
-    cmpl %ebx, 12(%ebp) 
-    je mLcndend1
+    cmpl %ebx, 12(%ebp)
+    je mLwhile1End
+
     pushl (%ebx)
     pushl -4(%ebp)
     call insertEnd
     addl $8,%esp
-
+    
     movl -12(%ebp), %ebx
     movl 4(%ebx), %ebx
     movl %ebx, -12(%ebp)
-    jmp mLcnd11
+    jmp mLwhile2Start
 
-mLcnd2:
+mLif2Start:
     movl -12(%ebp), %ebx
     cmpl %ebx, 12(%ebp)
-    jne mLcnd3
-mLcnd21:
+    jne mLif3Start
+
+mLwhile3Start:
     movl -8(%ebp), %ebx
     cmpl %ebx, 8(%ebp)
-    je mLcndend1
+    je mLwhile1End
+
     pushl (%ebx)
     pushl -4(%ebp)
     call insertEnd
     addl $8,%esp
-
+    
     movl -8(%ebp), %ebx
     movl 4(%ebx), %ebx
     movl %ebx, -8(%ebp)
-    jmp mLcnd21
+    jmp mLwhile3Start
 
-mLcnd3:
+mLif3Start:
     movl -8(%ebp), %ebx
     movl -12(%ebp), %ecx
     movl (%ebx), %ebx
     cmpl (%ecx), %ebx
-    jge mLcnd4
+    jg mLif4Start
+
     pushl %ebx
     pushl -4(%ebp)
     call insertEnd
-    addl $8,%esp
+    addl $8, %esp
 
     movl -8(%ebp), %ebx
     movl 4(%ebx), %ebx
     movl %ebx, -8(%ebp)
-    jmp  mLcnd1
-mLcnd4:
+    jmp mLwhile1Start
+
+mLif4Start:
+    movl -12(%ebp), %ecx
+    
     pushl (%ecx)
     pushl -4(%ebp)
     call insertEnd
     addl $8,%esp
+    
+    movl -12(%ebp), %ecx
+    movl 4(%ecx), %ecx
+    movl %ecx, -12(%ebp)
+    jmp mLwhile1Start
 
-    movl -12(%ebp), %ebx
-    movl 4(%ebx), %ebx
-    movl %ebx, -12(%ebp)
-    jmp mLcnd1
-mLcndend1:
-
+mLwhile1End:
     movl -4(%ebp), %eax
     
     movl %ebp, %esp
