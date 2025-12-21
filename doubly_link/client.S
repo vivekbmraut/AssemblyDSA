@@ -15,6 +15,20 @@ gemsg1:
     .string "END DATA: %d\n"
 gemsg2:
     .string "AFTER GET_END NO CHANGE"
+psmsg1:
+    .string "POP_START DATA: %d\n"
+psmsg2:
+    .string "AFTER POP_START"
+pemsg1:
+    .string "POP_END DATA: %d\n"
+pemsg2:
+    .string "AFTER POP_END"
+rsmsg1:
+    .string "AFTER REMOVE_START"
+remsg1:
+    .string "AFTER REMOVE_END"
+rdmsg1:
+    .string "AFTER REMOVE_DATA 200"
 
 .section .text
 
@@ -118,6 +132,66 @@ mforend1:
     call showList
     addl $8, %esp
 
+    leal -12(%ebp), %ebx
+    pushl %ebx
+    pushl -4(%ebp)
+    call popStart
+    addl $8,%esp
+
+    pushl -12(%ebp)
+    pushl $psmsg1
+    call printf
+    addl $8,%esp
+
+    pushl $psmsg2
+    pushl -4(%ebp)
+    call showList
+    addl $8,%esp
+
+    leal -12(%ebp), %ebx
+    pushl %ebx
+    pushl -4(%ebp)
+    call popEnd
+    addl $8,%esp
+
+    pushl -12(%ebp)
+    pushl $pemsg1
+    call printf
+    addl $8,%esp
+
+    pushl $pemsg2
+    pushl -4(%ebp)
+    call showList
+    addl $8,%esp
+
+    pushl -4(%ebp)
+    call removeStart
+    addl $4,%esp
+
+    pushl $rsmsg1
+    pushl -4(%ebp)
+    call showList
+    addl $8,%esp
+
+    pushl -4(%ebp)
+    call removeEnd
+    addl $4,%esp
+
+    pushl $remsg1
+    pushl -4(%ebp)
+    call showList
+    addl $8,%esp
+
+    pushl $200
+    pushl -4(%ebp)
+    call removeData
+    addl $8,%esp
+
+    pushl $rdmsg1
+    pushl -4(%ebp)
+    call showList
+    addl $8,%esp
+
     leal -4(%ebp), %ebx
     pushl %ebx
     call destroyList
@@ -126,3 +200,4 @@ mforend1:
     movl $0,%ebx
     movl $1,%eax
     int $0x80
+

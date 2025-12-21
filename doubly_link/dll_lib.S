@@ -284,6 +284,177 @@ gEend:
     popl %ebp
     ret
 
+.globl popStart
+.type popStart, @function
+popStart:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $4,%esp
+    
+    movl $0, -4(%ebp)
+
+    pushl 8(%ebp)
+    call isEmpty
+    addl $4,%esp
+
+    movl $LIST_EMPTY, %ecx
+    cmpl $TRUE, %eax
+    cmove %ecx, %eax
+    je pSend 
+    
+
+    movl 8(%ebp), %ebx
+    movl 8(%ebx), %ebx 
+    movl %ebx, -4(%ebp)
+
+    movl 12(%ebp), %edx
+    movl (%ebx), %ebx
+    movl %ebx, (%edx)
+
+    pushl -4(%ebp)
+    call genericDelete
+    addl $4,%esp
+    
+    movl $SUCCESS, %eax
+pSend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl popEnd
+.type popEnd, @function
+popEnd:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $4,%esp
+    
+    movl $0, -4(%ebp)
+
+    pushl 8(%ebp)
+    call isEmpty
+    addl $4,%esp
+
+    movl $LIST_EMPTY, %ecx
+    cmpl $TRUE, %eax
+    cmove %ecx, %eax
+    je pEend
+
+    pushl 8(%ebp)
+    call getLastNode
+    addl $4,%esp
+    movl %eax, -4(%ebp)
+
+    cmpl 8(%ebp), %eax
+    je pEend
+    
+    movl 12(%ebp), %edx
+    movl -4(%ebp), %ebx
+    movl (%ebx), %ebx
+    movl %ebx, (%edx)
+
+    pushl -4(%ebp)
+    call genericDelete
+    addl $4,%esp
+
+    movl $SUCCESS, %eax
+pEend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl removeStart
+.type removeStart, @function
+removeStart:
+    pushl %ebp
+    movl %esp, %ebp
+    
+    pushl 8(%ebp)
+    call isEmpty
+    addl $4, %esp
+
+    movl $LIST_EMPTY, %ecx
+    cmpl $TRUE, %eax
+    cmove %ecx, %eax
+    je rSend
+    
+    movl 8(%ebp), %ebx
+    pushl 8(%ebx)
+    call genericDelete
+    addl $4,%esp
+    
+    movl $SUCCESS, %eax
+rSend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl removeEnd
+.type removeEnd, @function
+removeEnd:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $4,%esp
+
+    movl $0, -4(%ebp)
+
+    pushl 8(%ebp)
+    call isEmpty
+    addl $4,%esp
+    
+    movl $LIST_EMPTY, %ecx
+    cmpl $TRUE, %eax
+    cmove %ecx, %eax
+    je rEend
+
+    pushl 8(%ebp)
+    call getLastNode
+    addl $4,%esp
+
+    movl %eax, -4(%ebp)
+    
+    cmpl 8(%ebp), %eax
+    je rEend
+    
+    pushl -4(%ebp)
+    call genericDelete
+    addl $4,%esp
+    
+    movl $SUCCESS, %eax
+rEend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl removeData
+.type removeData, @function
+removeData:
+    pushl %ebp
+    movl %esp,%ebp
+    subl $4,%esp
+    
+    movl $0, -4(%ebp)
+    
+    pushl 12(%ebp)
+    pushl 8(%ebp)
+    call searchNode
+    addl $8,%esp
+    
+    movl %eax, -4(%ebp)
+
+    movl $LIST_DATA_NOT_FOUND, %ecx
+    cmpl $0, %eax
+    cmove %ecx, %eax
+    je rDend
+
+    pushl -4(%ebp)
+    call genericDelete
+    addl $4,%esp
+    
+rDend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
 .globl getLastNode
 .type getLastNode, @function
 getLastNode:
@@ -356,6 +527,31 @@ giifend1:
     movl %ebp, %esp
     popl %ebp
     ret
+
+.globl genericDelete
+.type genericDelete, @function
+genericDelete:		    #prototype: void genericDelete(struct node* del_node)
+    pushl %ebp
+    movl %esp, %ebp
+    
+    movl 8(%ebp), %ebx
+    movl 8(%ebx), %ecx
+    movl 4(%ebx), %edx
+    movl %ecx, 8(%edx)
+
+    cmpl $0, %ecx
+    je gDifend1
+    movl %edx,4(%ecx)
+gDifend1:
+
+    pushl 8(%ebp)
+    call free
+    addl $4,%esp
+
+    movl %ebp, %esp
+    popl %ebp
+    ret
+    
 
 .globl searchNode
 .type searchNode, @function
