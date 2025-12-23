@@ -38,7 +38,9 @@ listmsg3:
 listmsg4:
     .string "LIST append to LIST3:"
 listmsg5:
-    .string "Reversed list of LIST3: "
+    .string "Reversed list of LIST3 is LIST: "
+listmsg6:
+    .string "LIST3 Reversed: "
 
 .section .text
 
@@ -293,10 +295,19 @@ mforend1:
     pushl -24(%ebp)
     call getReversedList
     addl $4,%esp
+    movl %eax, -4(%ebp)
 
-    movl %eax, -4(%ebp) 
     pushl $listmsg5
     pushl -4(%ebp)
+    call showList
+    addl $8,%esp
+
+    pushl -24(%ebp)
+    call reverseList
+    addl $4,%esp
+
+    pushl $listmsg6
+    pushl -24(%ebp)
     call showList
     addl $8,%esp
 

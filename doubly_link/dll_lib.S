@@ -596,6 +596,66 @@ gRLwhile1end:
     popl %ebp
     ret
 
+.globl reverseList
+.type reverseList, @function
+reverseList:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $12, %esp
+
+    movl $0,-4(%ebp)	    # p_run_prev
+    movl $0,-8(%ebp)
+    movl $0,-12(%ebp)	    # p_run_next
+
+    pushl 8(%ebp)
+    call isEmpty
+    addl $4,%esp
+
+    movl $LIST_EMPTY, %ecx
+    cmpl $TRUE, %eax
+    cmove %ecx, %eax
+    je rLend
+
+    movl 8(%ebp), %ebx
+    movl %ebx,-4(%ebp)
+    movl 8(%ebx), %ebx
+    movl %ebx, -8(%ebp)
+    movl 8(%ebx), %ebx
+    movl %ebx, -12(%ebx)
+
+rLwhile1:
+    movl -8(%ebp), %ebx
+    cmpl $0, %ebx
+    je rLwhile1end
+    
+    movl 8(%ebx), %edx
+    movl %edx, -12(%ebp)
+    movl %ebx, -4(%ebp)
+
+    movl 4(%ebx), %ecx
+    movl %ecx, 8(%ebx)
+
+    movl -12(%ebp), %edx
+    movl %edx, 4(%ebx)
+
+    movl %edx, -8(%ebp)
+    jmp rLwhile1
+
+rLwhile1end:
+    movl 8(%ebp), %ecx
+    movl 8(%ecx), %ebx
+    movl $0, 8(%ebx)
+    
+    movl -4(%ebp), %ebx
+    movl %ebx, 8(%ecx)
+    movl %ecx, 4(%ebx)
+
+    movl $SUCCESS, %eax
+rLend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
 .globl getLastNode
 .type getLastNode, @function
 getLastNode:
