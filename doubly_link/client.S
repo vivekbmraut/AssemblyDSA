@@ -29,6 +29,16 @@ remsg1:
     .string "AFTER REMOVE_END"
 rdmsg1:
     .string "AFTER REMOVE_DATA 200"
+listmsg1:
+    .string "LIST_1:"
+listmsg2:
+    .string "LIST_2:"
+listmsg3:
+    .string "LIST_3 Concat List: "
+listmsg4:
+    .string "LIST append to LIST3:"
+listmsg5:
+    .string "Reversed list of LIST3: "
 
 .section .text
 
@@ -37,11 +47,14 @@ rdmsg1:
 main:
     pushl %ebp
     movl %esp, %ebp
-    subl $12, %esp
+    subl $24, %esp
 
     movl $0, -4(%ebp)           # p_list = NULL
     movl $0, -8(%ebp)           # i = 0
     movl $0, -12(%ebp)           # data = 0
+    movl $0, -16(%ebp)		# plist_1 = NULL
+    movl $0, -20(%ebp)		# plist_2 = NULL
+    movl $0, -24(%ebp)		# plist_3 = NULL
 
     leal -4(%ebp), %ebx
     pushl %ebx
@@ -192,6 +205,116 @@ mforend1:
     call showList
     addl $8,%esp
 
+    leal -16(%ebp), %ebx
+    pushl %ebx
+    call createList
+    addl $4,%esp
+
+    leal -20(%ebp), %ebx
+    pushl %ebx
+    call createList
+    addl $4,%esp
+
+    pushl $50
+    pushl -16(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    pushl $3
+    pushl -16(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    pushl $2
+    pushl -16(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    pushl $1
+    pushl -16(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    pushl $listmsg1
+    pushl -16(%ebp)
+    call showList
+    addl $8, %esp
+
+
+    pushl $24
+    pushl -20(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    pushl $23
+    pushl -20(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    pushl $22
+    pushl -20(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    pushl $21
+    pushl -20(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    pushl $listmsg2
+    pushl -20(%ebp)
+    call showList
+    addl $8, %esp
+
+    pushl -20(%ebp)
+    pushl -16(%ebp)
+    call concatList
+    addl $8,%esp
+
+    movl %eax, -24(%ebp)
+    
+    pushl $listmsg3
+    pushl -24(%ebp)
+    call showList
+    addl $8,%esp
+
+    pushl -4(%ebp)
+    pushl -24(%ebp)
+    call appendList
+    addl $8,%esp
+
+    movl $0, -4(%ebp)
+    
+    pushl $listmsg4
+    pushl -24(%ebp)
+    call showList
+    addl $8,%esp
+
+    pushl -24(%ebp)
+    call getReversedList
+    addl $4,%esp
+
+    movl %eax, -4(%ebp) 
+    pushl $listmsg5
+    pushl -4(%ebp)
+    call showList
+    addl $8,%esp
+
+    leal -24(%ebp), %ebx
+    pushl %ebx
+    call destroyList
+    addl $4,%esp
+
+    leal -20(%ebp), %ebx
+    pushl %ebx
+    call destroyList
+    addl $4,%esp
+
+    leal -16(%ebp), %ebx
+    pushl %ebx
+    call destroyList
+    addl $4,%esp
+    
     leal -4(%ebp), %ebx
     pushl %ebx
     call destroyList

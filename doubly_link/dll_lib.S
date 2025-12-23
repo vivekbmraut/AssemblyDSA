@@ -455,6 +455,147 @@ rDend:
     popl %ebp
     ret
 
+.globl concatList
+.type concatList, @function
+concatList:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $12,%esp
+
+    movl $0, -4(%ebp)	#plist3
+    movl $0, -8(%ebp)	#prun1
+    movl $0, -12(%ebp)	#prun2
+
+    leal -4(%ebp), %ebx
+    pushl %ebx
+    call createList
+    addl $4,%esp
+
+    movl 8(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -8(%ebp)
+
+    movl 12(%ebp), %ecx
+    movl 8(%ecx), %ecx
+    movl %ecx, -12(%ebp)
+
+cLwhile1:
+    movl -8(%ebp), %ebx
+    cmpl $0, %ebx
+    je cLwhile1end
+
+    pushl (%ebx)
+    pushl -4(%ebp)
+    call insertEnd
+    addl $8,%esp
+
+    movl -8(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -8(%ebp)
+    jmp cLwhile1
+
+cLwhile1end:
+    
+cLwhile2:
+    movl -12(%ebp), %ebx
+    cmpl $0, %ebx
+    je cLwhile2end
+
+    pushl (%ebx)
+    pushl -4(%ebp)
+    call insertEnd
+    addl $8,%esp
+
+    movl -12(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -12(%ebp)
+    jmp cLwhile2
+    
+cLwhile2end:
+
+    movl -4(%ebp), %eax
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl appendList
+.type appendList, @function
+appendList:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $4, %esp
+
+    movl $0, -4(%esp)
+
+    pushl 8(%ebp)
+    call getLastNode
+    addl $4,%esp
+
+    movl %eax, -4(%ebp)
+    
+    movl -4(%ebp), %ebx
+    movl 12(%ebp), %ecx
+    movl 8(%ecx), %ecx
+
+    movl %ecx, 8(%ebx)
+    
+    cmpl $0,%ecx
+    je aLif1end
+    movl %ebx, 4(%ecx)
+aLif1end:
+    movl 12(%ebp), %ebx
+    movl $0, 8(%ebx)
+    movl $0, 4(%ebx)
+
+    pushl 12(%ebp)
+    call free
+    addl $4,%esp
+
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl getReversedList
+.type getReversedList, @function
+getReversedList:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $8,%esp
+
+    movl $0, -4(%ebp)
+    movl $0, -8(%ebp)
+    
+    leal -4(%ebp), %ebx
+    pushl %ebx
+    call createList
+    addl $4,%esp
+
+    movl 8(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -8(%ebp)
+
+gRLwhile1:
+    movl -8(%ebp), %ebx
+    cmpl $0, %ebx
+    je gRLwhile1end
+
+    pushl (%ebx)
+    pushl -4(%ebp)
+    call insertStart
+    addl $8,%esp
+
+    movl -8(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -8(%ebp)
+    jmp gRLwhile1
+
+gRLwhile1end:
+    
+    movl -4(%ebp), %eax
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
 .globl getLastNode
 .type getLastNode, @function
 getLastNode:
