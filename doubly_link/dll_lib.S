@@ -8,6 +8,10 @@ slmsg2:
     .string "[END]"
 slmsg3:
     .string "[%d]<->"
+value:
+    .string "data: %d\n"
+msg:
+    .string "HERE"
 
 .section .text
 .equ SUCCESS,1
@@ -652,6 +656,106 @@ rLwhile1end:
 
     movl $SUCCESS, %eax
 rLend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl mergeList
+.type mergeList, @function
+mergeList:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $12, %esp
+
+    movl $0, -4(%ebp)
+    movl $0, -8(%ebp)
+    movl $0, -12(%ebp)
+
+    leal -4(%ebp), %ebx
+    pushl %ebx
+    call createList
+    addl $4,%esp
+
+    movl 8(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -8(%ebp)
+
+    movl 12(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -12(%ebp)
+
+mLwhile1:
+    cmpl $0,-8(%ebp)
+    jne mLif2
+mLwhile2:
+    cmpl $0,-12(%ebp)
+    je mLwhile1end
+
+    movl -12(%ebp), %ebx
+    
+    pushl (%ebx)
+    pushl -4(%ebp)
+    call insertEnd
+    addl $8, %esp
+    
+    movl -12(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -12(%ebp)
+    jmp mLwhile2
+mLif2:
+    cmpl $0,-12(%ebp)
+    jne mLif3
+mLwhile3:
+    cmpl $0, -8(%ebp)
+    je mLwhile1end
+
+    movl -8(%ebp), %ebx
+
+    pushl (%ebx)
+    pushl -4(%ebp)
+    call insertEnd
+    addl $8,%esp
+
+    movl -8(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -8(%ebp)
+    jmp mLwhile3
+mLif3:
+    movl -8(%ebp), %ebx
+    movl -12(%ebp), %ecx
+    movl (%ebx), %ebx
+    cmpl (%ecx), %ebx
+    jg mLelse3
+
+    movl -8(%ebp), %ebx
+    pushl (%ebx)
+    pushl -4(%ebp)
+    call insertEnd
+    addl $8,%esp
+    
+    movl -8(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -8(%ebp)
+
+    jmp mLifelse3end
+mLelse3:
+    movl -12(%ebp), %ebx
+    
+    pushl (%ebx)
+    pushl -4(%ebp)
+    call insertEnd
+    addl $8,%esp
+
+    movl -12(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -12(%ebp)
+
+mLifelse3end:
+    jmp mLwhile1
+
+mLwhile1end:
+    movl -4(%ebp), %eax
+
     movl %ebp, %esp
     popl %ebp
     ret

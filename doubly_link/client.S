@@ -41,6 +41,8 @@ listmsg5:
     .string "Reversed list of LIST3 is LIST: "
 listmsg6:
     .string "LIST3 Reversed: "
+listmsg7:
+    .string "LIST4 merged_list: "
 
 .section .text
 
@@ -49,14 +51,15 @@ listmsg6:
 main:
     pushl %ebp
     movl %esp, %ebp
-    subl $24, %esp
+    subl $28, %esp
 
     movl $0, -4(%ebp)           # p_list = NULL
     movl $0, -8(%ebp)           # i = 0
-    movl $0, -12(%ebp)           # data = 0
+    movl $0, -12(%ebp)          # data = 0
     movl $0, -16(%ebp)		# plist_1 = NULL
     movl $0, -20(%ebp)		# plist_2 = NULL
     movl $0, -24(%ebp)		# plist_3 = NULL
+    movl $0, -28(%ebp)		# p_list_4 = NULL
 
     leal -4(%ebp), %ebx
     pushl %ebx
@@ -280,6 +283,18 @@ mforend1:
     call showList
     addl $8,%esp
 
+    pushl -20(%ebp)
+    pushl -16(%ebp)
+    call mergeList
+    addl $8,%esp
+
+    movl %eax, -28(%ebp)
+
+    pushl $listmsg7
+    pushl -28(%ebp)
+    call showList
+    addl $8,%esp
+
     pushl -4(%ebp)
     pushl -24(%ebp)
     call appendList
@@ -310,6 +325,11 @@ mforend1:
     pushl -24(%ebp)
     call showList
     addl $8,%esp
+
+    leal -28(%ebp), %ebx
+    pushl %ebx
+    call destroyList
+    addl $4,%esp
 
     leal -24(%ebp), %ebx
     pushl %ebx
