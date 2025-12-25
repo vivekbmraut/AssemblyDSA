@@ -1,161 +1,164 @@
 .section .rodata
-success:
-    .string "SUCCESS"
-failure:
-    .string "FAILURE"
-ismsg:
-    .string "Insert Start"
-iemsg:
-    .string "Insert End"
-iamsg:
-    .string "Insert After"
-ibmsg:
-    .string "Insert before"
-gsmsg:
-    .string "Start data: %d\n"
-gemsg:
-    .string "End data: %d\n"
-psmsg:
-    .string "After pop start"
-psdata:
-    .string "popStart data: %d\n"
-pemsg:
-    .string "After pop end"
-pedata:
-    .string "popEnd data: %d\n"
-rsmsg:
-    .string "After remove start"
-remsg:
-    .string "After remove end"
-rdmsg:
-    .string "After remove data: %d\n"
-l1msg:
-    .string "List1: "
-l2msg:
-    .string "List2: "
-l3msg:
-    .string "List3 Merged: "
-rlmsg:
-    .string "Reverse List: "
-almsg:
-    .string "After List1 append to List2: "
-clmsg:
-    .string "Concat List1 to List2: "
-grlmsg:
-    .string "Reversed List1"
-lTAmsg:
-    .string "list3 to array :"
-p_arrmsg:
+ismsg1:
+    .string "INSERT START"
+iemsg1:
+    .string "INSERT END"
+iamsg1:
+    .string "INSERT AFTER"
+ibmsg1:
+    .string "INSERT 200 BEFORE 1"
+gsmsg1:
+    .string "START DATA: %d\n"
+gsmsg2:
+    .string "AFTER GET_START NO CHANGE"
+gemsg1:
+    .string "END DATA: %d\n"
+gemsg2:
+    .string "AFTER GET_END NO CHANGE"
+psmsg1:
+    .string "POP_START DATA: %d\n"
+psmsg2:
+    .string "AFTER POP_START"
+pemsg1:
+    .string "POP_END DATA: %d\n"
+pemsg2:
+    .string "AFTER POP_END"
+rsmsg1:
+    .string "AFTER REMOVE_START"
+remsg1:
+    .string "AFTER REMOVE_END"
+rdmsg1:
+    .string "AFTER REMOVE_DATA 200"
+listmsg1:
+    .string "LIST_1:"
+listmsg2:
+    .string "LIST_2:"
+listmsg3:
+    .string "LIST_3 Concat List: "
+listmsg4:
+    .string "LIST append to LIST3:"
+listmsg5:
+    .string "Reversed list of LIST3 is LIST: "
+listmsg6:
+    .string "LIST3 Reversed: "
+listmsg7:
+    .string "LIST4 merged_list: "
+listmsg8:
+    .string "LIST5 array to List:"
+parrmsg1:
+    .string "----------------LIST3 to array---------"
+parrmsg2:
     .string "p_arr[%d]: %d\n"
-parr_to_listmsg:
-    .string "p_arr to list: "
 
 .section .text
+
 .globl main
 .type main, @function
-
 main:
     pushl %ebp
-    movl %esp,%ebp
-    subl $40,%esp
+    movl %esp, %ebp
+    subl $40, %esp
 
-    movl $0,-4(%ebp)        #p_list
-    movl $0,-8(%ebp)        #i
-    movl $0,-12(%ebp)       #data
-    movl $0, -16(%ebp)      #p_list1
-    movl $0, -20(%ebp)      #p_list2
-    movl $0, -24(%ebp)      #p_list3
-    movl $0, -28(%ebp)      #p_list4
-    movl $0, -32(%ebp)      #p_list5
-    movl $0, -36(%ebp)      #p_arr
-    movl $0, -40(%ebp)      #size
+    movl $0, -4(%ebp)           # p_list = NULL
+    movl $0, -8(%ebp)           # i = 0
+    movl $0, -12(%ebp)          # data = 0
+    movl $0, -16(%ebp)		# plist_1 = NULL
+    movl $0, -20(%ebp)		# plist_2 = NULL
+    movl $0, -24(%ebp)		# plist_3 = NULL
+    movl $0, -28(%ebp)		# p_list_4 = NULL
+    movl $0, -32(%ebp)		# p_arr = NULL
+    movl $0, -36(%ebp)		# size = 0
+    movl $0, -40(%ebp)		# p_list_5 = NULL
+    
 
     leal -4(%ebp), %ebx
     pushl %ebx
     call createList
     addl $4,%esp
 
-maincnd1:
+mcnd1:
     cmpl $5, -8(%ebp)
-    jge mainloopend1
+    jge mforend1
     
-    movl -8(%ebp), %ecx
-    
-    addl $1, %ecx
-    pushl %ecx
+    movl -8(%ebp), %ebx
+    addl $1, %ebx
+    pushl %ebx
     pushl -4(%ebp)
     call insertStart
     addl $8,%esp
 
     addl $1, -8(%ebp)
-    jmp maincnd1
+    jmp mcnd1
+mforend1:
 
-mainloopend1:
-
-    pushl $ismsg
+    pushl $ismsg1
     pushl -4(%ebp)
     call showList
-    addl $8, %esp
-
+    addl $8,%esp
 
     pushl $100
     pushl -4(%ebp)
     call insertEnd
     addl $8,%esp
 
-    pushl $200
-    pushl -4(%ebp)
-    call insertEnd
-    addl $8,%esp
-
-    pushl $iemsg
+    pushl $iemsg1
     pushl -4(%ebp)
     call showList
     addl $8,%esp
 
-    pushl $32
-    pushl $100
+    pushl $300
+    pushl $1
     pushl -4(%ebp)
     call insertAfter
     addl $12,%esp
 
-    pushl $iamsg
+    pushl $iamsg1
     pushl -4(%ebp)
     call showList
-    addl $8,%esp
-    
-    pushl $54
-    pushl $100
+    addl $8, %esp
+
+    pushl $200
+    pushl $1
     pushl -4(%ebp)
     call insertBefore
-    addl $12, %esp
-    
-    pushl $ibmsg
+    addl $12,%esp
+
+    pushl $ibmsg1
     pushl -4(%ebp)
     call showList
-    addl $8,%esp
-    
+    addl $8, %esp
+
     leal -12(%ebp), %ebx
     pushl %ebx
     pushl -4(%ebp)
     call getStart
-    addl $8, %esp
+    addl $4,%esp
 
     pushl -12(%ebp)
-    pushl $gsmsg
+    pushl $gsmsg1
     call printf
     addl $8,%esp
+
+    pushl $gsmsg2
+    pushl -4(%ebp)
+    call showList
+    addl $8, %esp
 
     leal -12(%ebp), %ebx
     pushl %ebx
     pushl -4(%ebp)
     call getEnd
-    addl $8,%esp
+    addl $4,%esp
 
     pushl -12(%ebp)
-    pushl $gemsg
+    pushl $gemsg1
     call printf
     addl $8,%esp
+
+    pushl $gemsg2
+    pushl -4(%ebp)
+    call showList
+    addl $8, %esp
 
     leal -12(%ebp), %ebx
     pushl %ebx
@@ -164,11 +167,11 @@ mainloopend1:
     addl $8,%esp
 
     pushl -12(%ebp)
-    pushl $psdata
+    pushl $psmsg1
     call printf
     addl $8,%esp
-    
-    pushl $psmsg
+
+    pushl $psmsg2
     pushl -4(%ebp)
     call showList
     addl $8,%esp
@@ -180,11 +183,11 @@ mainloopend1:
     addl $8,%esp
 
     pushl -12(%ebp)
-    pushl $pedata
+    pushl $pemsg1
     call printf
     addl $8,%esp
-    
-    pushl $pemsg
+
+    pushl $pemsg2
     pushl -4(%ebp)
     call showList
     addl $8,%esp
@@ -193,31 +196,26 @@ mainloopend1:
     call removeStart
     addl $4,%esp
 
-    pushl $rsmsg
+    pushl $rsmsg1
     pushl -4(%ebp)
     call showList
-    addl $8, %esp
+    addl $8,%esp
 
     pushl -4(%ebp)
     call removeEnd
     addl $4,%esp
 
-    pushl $remsg
+    pushl $remsg1
     pushl -4(%ebp)
     call showList
     addl $8,%esp
 
-    pushl $54
+    pushl $200
     pushl -4(%ebp)
     call removeData
     addl $8,%esp
 
-    pushl $54
-    pushl $rdmsg
-    call printf
-    addl $8,%esp
-
-    pushl $0
+    pushl $rdmsg1
     pushl -4(%ebp)
     call showList
     addl $8,%esp
@@ -232,11 +230,11 @@ mainloopend1:
     call createList
     addl $4,%esp
 
-    pushl $60
+    pushl $50
     pushl -16(%ebp)
     call insertStart
     addl $8,%esp
-    
+
     pushl $3
     pushl -16(%ebp)
     call insertStart
@@ -251,6 +249,11 @@ mainloopend1:
     pushl -16(%ebp)
     call insertStart
     addl $8,%esp
+
+    pushl $listmsg1
+    pushl -16(%ebp)
+    call showList
+    addl $8, %esp
 
 
     pushl $24
@@ -273,25 +276,20 @@ mainloopend1:
     call insertStart
     addl $8,%esp
 
-    pushl $l1msg
-    pushl -16(%ebp)
-    call showList
-    addl $8,%esp
-
-    pushl $l2msg
+    pushl $listmsg2
     pushl -20(%ebp)
     call showList
-    addl $8,%esp
+    addl $8, %esp
 
     pushl -20(%ebp)
     pushl -16(%ebp)
     call concatList
     addl $8,%esp
 
-    movl %eax, -28(%ebp)
-
-    pushl $clmsg
-    pushl -28(%ebp)
+    movl %eax, -24(%ebp)
+    
+    pushl $listmsg3
+    pushl -24(%ebp)
     call showList
     addl $8,%esp
 
@@ -300,75 +298,32 @@ mainloopend1:
     call mergeList
     addl $8,%esp
 
-    movl %eax, -24(%ebp)
+    movl %eax, -28(%ebp)
 
-    pushl $l3msg
-    pushl -24(%ebp)
+    pushl $listmsg7
+    pushl -28(%ebp)
     call showList
     addl $8,%esp
 
-    leal -40(%ebp), %ebx
-    pushl %ebx
-    leal -36(%ebp), %ebx
-    pushl %ebx
+    pushl -4(%ebp)
     pushl -24(%ebp)
-    call listToArray
-    addl $12, %esp
-    
-    pushl $lTAmsg
-    call puts
-    addl $4,%esp
-
-    movl $0, -8(%ebp)
-maincnd2:
-    movl -8(%ebp), %ecx
-    cmpl -40(%ebp), %ecx
-    jge mainloopend2
-    
-    movl -36(%ebp), %ebx
-    pushl (%ebx, %ecx, 4)
-    pushl %ecx
-    pushl $p_arrmsg
-    call printf
-    addl $12,%esp
-
-    movl -8(%ebp), %ecx
-    addl $1,%ecx
-    movl %ecx, -8(%ebp)
-    jmp maincnd2
-mainloopend2:
-
-    pushl -20(%ebp)
-    pushl -16(%ebp)
     call appendList
     addl $8,%esp
 
-    movl $0, -20(%ebp)
-
-    pushl -40(%ebp)
-    pushl -36(%ebp)
-    call arrayToList
-    addl $8,%esp
-
-    movl %eax, -20(%ebp)
-    pushl $parr_to_listmsg
-    pushl -20(%ebp)
+    movl $0, -4(%ebp)
+    
+    pushl $listmsg4
+    pushl -24(%ebp)
     call showList
     addl $8,%esp
 
-    pushl $almsg
-    pushl -16(%ebp)
-    call showList
-    addl $8,%esp
-
-    pushl -16(%ebp)
+    pushl -24(%ebp)
     call getReversedList
     addl $4,%esp
+    movl %eax, -4(%ebp)
 
-    movl %eax, -32(%ebp)
-
-    pushl $grlmsg
-    pushl -32(%ebp)
+    pushl $listmsg5
+    pushl -4(%ebp)
     call showList
     addl $8,%esp
 
@@ -376,18 +331,62 @@ mainloopend2:
     call reverseList
     addl $4,%esp
 
-    pushl $rlmsg
+    pushl $listmsg6
     pushl -24(%ebp)
     call showList
     addl $8,%esp
 
-    pushl -36(%ebp)
-    call free
+    leal -36(%ebp), %ecx
+    leal -32(%ebp), %ebx
+    pushl %ecx
+    pushl %ebx
+    pushl -24(%ebp)
+    call listToArray
+    addl $12, %esp
+
+    pushl $parrmsg1
+    call puts
     addl $4,%esp
 
-    leal -32(%ebp), %ebx
+    movl $0, -8(%ebp)
+mcnd2:
+    movl -8(%ebp), %ecx
+    cmpl -36(%ebp), %ecx
+    jge mforend2
+    
+    movl -32(%ebp), %ebx
+
+    pushl (%ebx,%ecx,4)
+    pushl %ecx
+    pushl $parrmsg2
+    call printf
+    addl $12, %esp
+    
+    movl -8(%ebp), %ecx
+    addl $1, %ecx
+    movl %ecx, -8(%ebp)
+    jmp mcnd2
+
+mforend2:
+    
+    pushl -36(%ebp)
+    pushl -32(%ebp)
+    call arrayToList
+    addl $8, %esp
+    movl %eax, -40(%ebp)
+    
+    pushl $listmsg8
+    pushl -40(%ebp)
+    call showList
+    addl $8,%esp
+
+    leal -40(%ebp), %ebx
     pushl %ebx
     call destroyList
+    addl $4,%esp
+
+    pushl -32(%ebp)
+    call free
     addl $4,%esp
 
     leal -28(%ebp), %ebx
@@ -409,25 +408,13 @@ mainloopend2:
     pushl %ebx
     call destroyList
     addl $4,%esp
-
+    
     leal -4(%ebp), %ebx
     pushl %ebx
     call destroyList
     addl $4,%esp
 
-    movl $failure, %ebx
-    movl $success, %ecx
-    cmpl $0,-4(%ebp)
-    cmovz %ecx, %ebx
-    
-    pushl %ebx
-    call puts
-    addl $4,%esp
-    
     movl $0,%ebx
     movl $1,%eax
     int $0x80
 
-    movl %ebp,%esp
-    popl %ebp
-    ret
