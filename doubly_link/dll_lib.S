@@ -760,6 +760,143 @@ mLwhile1end:
     popl %ebp
     ret
 
+.globl listToArray
+.type listToArray, @function
+listToArray:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $12, %esp
+
+    movl $0, -4(%ebp)		# p_run
+    movl $0, -8(%ebp)		# size
+    movl $0, -12(%ebp)		# arr
+
+    pushl 8(%ebp)
+    call getLength
+    addl $4, %esp
+
+    movl $LIST_EMPTY, %ecx
+    cmpl $0, %eax
+    cmove %ecx, %eax
+    je ltaend
+
+    movl %eax, -8(%ebp)
+
+    sall $2, %eax
+    pushl %eax
+    call malloc
+    addl $4,%esp
+
+    movl %eax, -12(%ebp)
+
+    movl $0, %ecx
+    movl -12(%ebp), %ebx
+    movl 8(%ebp), %edx
+    movl 8(%edx), %edx
+    movl %edx, -4(%ebp)
+
+ltawhile1:
+    cmpl $0, -4(%ebp)
+    je ltawhile1end
+
+    movl -4(%ebp), %edx
+    movl (%edx), %edx
+    movl %edx, (%ebx,%ecx,4)
+
+    addl $1, %ecx
+    movl -4(%ebp), %edx
+    movl 8(%edx), %edx
+    movl %edx, -4(%ebp)
+    jmp ltawhile1
+
+ltawhile1end:
+    movl -12(%ebp), %ebx
+    movl 12(%ebp), %ecx
+    movl %ebx, (%ecx)
+
+    movl -8(%ebp), %ebx
+    movl 16(%ebp), %ecx
+    movl %ebx, (%ecx)
+
+    movl $SUCCESS, %eax
+ltaend:
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl arrayToList
+.type arrayToList, @function
+arrayToList:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $8,%esp
+
+    movl $0, -4(%ebp)	    # i = 0
+    movl $0, -8(%ebp)	    # p_list = NULL
+
+    leal -8(%ebp), %ebx
+    pushl %ebx
+    call createList
+    addl $4,%esp
+
+
+atlwhile1:
+    movl -4(%ebp), %ecx
+    cmpl 12(%ebp), %ecx
+    jge atlwhile1end
+    
+    movl 8(%ebp), %ebx
+
+    pushl (%ebx,%ecx,4)
+    pushl -8(%ebp)
+    call insertEnd
+    addl $8,%esp
+
+    movl -4(%ebp), %ecx
+    addl $1, %ecx
+    movl %ecx, -4(%ebp)
+    jmp atlwhile1
+
+atlwhile1end:
+    movl -8(%ebp), %eax
+
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+.globl getLength
+.type getLength, @function
+getLength:
+    pushl %ebp
+    movl %esp, %ebp
+    subl $8,%esp
+    
+    movl $0, -4(%ebp)
+    movl $0, -8(%ebp)
+
+    movl 8(%ebp), %ebx
+    movl 8(%ebx), %ebx
+    movl %ebx, -4(%ebp)
+
+gLwhile1:
+    cmpl $0, -4(%ebp)
+    je gLwhile1end
+
+    movl -8(%ebp), %ecx
+    addl $1, %ecx
+    movl %ecx, -8(%ebp)
+    
+    movl -4(%ebp), %ebx
+    movl 8(%ebx),%ebx
+    movl %ebx, -4(%ebp)
+    jmp gLwhile1
+gLwhile1end:
+    movl -8(%ebp), %eax
+
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
 .globl getLastNode
 .type getLastNode, @function
 getLastNode:

@@ -43,6 +43,12 @@ listmsg6:
     .string "LIST3 Reversed: "
 listmsg7:
     .string "LIST4 merged_list: "
+listmsg8:
+    .string "LIST5 array to List:"
+parrmsg1:
+    .string "----------------LIST3 to array---------"
+parrmsg2:
+    .string "p_arr[%d]: %d\n"
 
 .section .text
 
@@ -51,7 +57,7 @@ listmsg7:
 main:
     pushl %ebp
     movl %esp, %ebp
-    subl $28, %esp
+    subl $40, %esp
 
     movl $0, -4(%ebp)           # p_list = NULL
     movl $0, -8(%ebp)           # i = 0
@@ -60,6 +66,10 @@ main:
     movl $0, -20(%ebp)		# plist_2 = NULL
     movl $0, -24(%ebp)		# plist_3 = NULL
     movl $0, -28(%ebp)		# p_list_4 = NULL
+    movl $0, -32(%ebp)		# p_arr = NULL
+    movl $0, -36(%ebp)		# size = 0
+    movl $0, -40(%ebp)		# p_list_5 = NULL
+    
 
     leal -4(%ebp), %ebx
     pushl %ebx
@@ -325,6 +335,59 @@ mforend1:
     pushl -24(%ebp)
     call showList
     addl $8,%esp
+
+    leal -36(%ebp), %ecx
+    leal -32(%ebp), %ebx
+    pushl %ecx
+    pushl %ebx
+    pushl -24(%ebp)
+    call listToArray
+    addl $12, %esp
+
+    pushl $parrmsg1
+    call puts
+    addl $4,%esp
+
+    movl $0, -8(%ebp)
+mcnd2:
+    movl -8(%ebp), %ecx
+    cmpl -36(%ebp), %ecx
+    jge mforend2
+    
+    movl -32(%ebp), %ebx
+
+    pushl (%ebx,%ecx,4)
+    pushl %ecx
+    pushl $parrmsg2
+    call printf
+    addl $12, %esp
+    
+    movl -8(%ebp), %ecx
+    addl $1, %ecx
+    movl %ecx, -8(%ebp)
+    jmp mcnd2
+
+mforend2:
+    
+    pushl -36(%ebp)
+    pushl -32(%ebp)
+    call arrayToList
+    addl $8, %esp
+    movl %eax, -40(%ebp)
+    
+    pushl $listmsg8
+    pushl -40(%ebp)
+    call showList
+    addl $8,%esp
+
+    leal -40(%ebp), %ebx
+    pushl %ebx
+    call destroyList
+    addl $4,%esp
+
+    pushl -32(%ebp)
+    call free
+    addl $4,%esp
 
     leal -28(%ebp), %ebx
     pushl %ebx
