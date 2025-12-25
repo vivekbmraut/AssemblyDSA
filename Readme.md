@@ -22,6 +22,7 @@
 ---
 
 ### List of Data Structures implemented till now  
-1. Doubly Circular LinkedList\([client_code](https://github.com/vivekbmraut/AssemblyDSA/blob/master/doubly_circular/dcll.s) / [server_code](https://github.com/vivekbmraut/AssemblyDSA/blob/master/doubly_circular/dcll_lib.s)\)
-2. Singly LinkedList\([client_code](https://github.com/vivekbmraut/AssemblyDSA/blob/master/singly_link/sll.s) / [server_code](https://github.com/vivekbmraut/AssemblyDSA/blob/master/singly_link/sll_lib.s)\)
+1. Doubly Circular Linked List
+2. Singly Linked List
 3. Singly Circular Linked List
+4. Doubly Linked List
