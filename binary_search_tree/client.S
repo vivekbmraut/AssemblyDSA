@@ -3,6 +3,8 @@ successmsg:
 	.string "SUCCESS"
 failmsg:
 	.string "FAILURE"
+rnmsg:
+	.string "After Removing %d\n"
 
 .section .text
 .equ NUM_OF_NODES,10
@@ -50,6 +52,30 @@ mfor1cnd:
 	pushl -4(%ebp)
 	call inorder
 	addl $4,%esp
+
+	movl $0, -48(%ebp)
+	jmp mfor2cnd
+mfor2body:
+	movl -48(%ebp), %ecx
+	pushl -44(%ebp,%ecx,4)
+	pushl -4(%ebp)
+	call removeNode
+	addl $8,%esp
+
+	movl -48(%ebp), %ecx
+	pushl -44(%ebp,%ecx,4)
+	pushl $rnmsg
+	call printf
+	addl $8,%esp
+
+	pushl -4(%ebp)
+	call inorder
+	addl $4,%esp
+
+	addl $1, -48(%ebp)
+mfor2cnd:
+	cmpl $NUM_OF_NODES, -48(%ebp)
+	jl mfor2body
 
 	leal -4(%ebp), %ebx
 	pushl %ebx
