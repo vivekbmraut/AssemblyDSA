@@ -26,3 +26,4 @@
 2. Singly Linked List
 3. Singly Circular Linked List
 4. Doubly Linked List
+5. Binary Search Tree
