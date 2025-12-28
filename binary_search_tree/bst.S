@@ -5,8 +5,6 @@ traversemsg:
 	.string "%d ,"
 emptystring:
 	.string ""
-datamsg:
-	.string "data:%d\n"
 
 .section .text
 
@@ -16,6 +14,9 @@ datamsg:
 .equ BST_DATA_NOT_FOUND,3
 .equ BST_NO_PREDECESSOR,4
 .equ BST_NO_SUCCESSOR,5
+
+.equ TRUE,1
+.equ FALSE,0
 
 
 .globl createBst
@@ -254,6 +255,104 @@ rnend:
 	popl %ebp
 	ret
 
+.globl preorder
+.type preorder, @function
+preorder:
+	pushl %ebp
+	movl %esp, %ebp
+
+	movl 8(%ebp), %ebx
+
+	pushl (%ebx)
+	call preorderNodeLevel
+	addl $4,%esp
+
+	pushl $emptystring
+	call puts
+	addl $4,%esp
+
+	movl $SUCCESS, %eax
+
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
+.type preorderNodeLevel, @function
+preorderNodeLevel:
+	pushl %ebp
+	movl %esp, %ebp
+
+	cmpl $0, 8(%ebp)
+	je pnlend
+
+	movl 8(%ebp),%ebx
+	pushl (%ebx)
+	pushl $traversemsg
+	call printf
+	addl $8,%esp
+
+	movl 8(%ebp), %ebx
+	pushl 8(%ebx)
+	call preorderNodeLevel
+	addl $4,%esp
+
+	movl 8(%ebp), %ebx
+	pushl 12(%ebx)
+	call preorderNodeLevel
+	addl $4,%esp
+
+pnlend:
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
+.globl postorder
+.type postorder, @function
+postorder:
+	pushl %ebp
+	movl %esp, %ebp
+
+	movl 8(%ebp), %ebx
+	pushl (%ebx)
+	call postorderNodeLevel
+	addl $4,%esp
+
+	pushl $emptystring
+	call puts
+	addl $4,%esp
+
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
+.type postorderNodeLevel, @function
+postorderNodeLevel:
+	pushl %ebp
+	movl %esp, %ebp
+
+	cmpl $0, 8(%ebp)
+	je pstnlend
+
+	movl 8(%ebp), %ebx
+	pushl 8(%ebx)
+	call postorderNodeLevel
+	addl $4,%esp
+
+	movl 8(%ebp), %ebx
+	pushl 12(%ebx)
+	call postorderNodeLevel
+	addl $4,%esp
+
+	movl 8(%ebp), %ebx
+	pushl (%ebx)
+	pushl $traversemsg
+	call printf
+	addl $8,%esp
+
+pstnlend:
+	movl %ebp, %esp
+	popl %ebp
+	ret
 
 .globl inorder
 .type inorder, @function
@@ -526,6 +625,31 @@ ipnlifend:
 
 	movl -8(%ebp),%eax
 
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
+.globl find
+.type find, @function
+find:
+	pushl %ebp
+	movl %esp, %ebp
+	subl $4, %esp
+
+	movl 8(%ebp), %ebx
+
+	pushl 12(%ebp)
+	pushl (%ebx)
+	call searchNode
+	addl $8,%esp
+
+	movl $FALSE, %ecx
+	cmpl $0, %eax
+	cmove %ecx, %eax
+	je findend
+	movl $TRUE, %eax
+
+findend:
 	movl %ebp, %esp
 	popl %ebp
 	ret

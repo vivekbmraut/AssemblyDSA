@@ -13,6 +13,14 @@ inpredmsg:
 	.string "INORDER PREDECESSOR of %d is %d\n"
 innopredmsg:
 	.string "NO INORDER PREDECESSOR for %d\n"
+inordermsg:
+	.string "INORDER: "
+preordermsg:
+	.string "PREORDER: "
+postordermsg:
+	.string "POSTORDER: "
+findsmsg:
+	.string "Finding element: %d "
 
 section:
 	.string "------------------------------------------------------------"
@@ -68,9 +76,75 @@ mfor1cnd:
 	cmpl $NUM_OF_NODES, -48(%ebp)
 	jl mfor1body
 
+	pushl $inordermsg
+	call puts
+	addl $4,%esp
+
 	pushl -4(%ebp)
 	call inorder
 	addl $4,%esp
+
+	pushl $preordermsg
+	call puts
+	addl $4,%esp
+
+	pushl -4(%ebp)
+	call preorder
+	addl $4,%esp
+
+	pushl $postordermsg
+	call puts
+	addl $4,%esp
+
+	pushl -4(%ebp)
+	call postorder
+	addl $4,%esp
+
+	pushl $112
+	pushl $findsmsg
+	call printf
+	addl $8, %esp
+
+	pushl $112
+	pushl -4(%ebp)
+	call find
+	addl $8, %esp
+
+	cmpl $1, %eax
+	je find1succ
+
+	pushl $failmsg
+	call puts
+	addl $4,%esp
+	jmp find1succend
+find1succ:
+	pushl $successmsg
+	call puts
+	addl $4,%esp
+find1succend:
+
+	pushl $128
+	pushl $findsmsg
+	call printf
+	addl $8, %esp
+
+	pushl $128
+	pushl -4(%ebp)
+	call find
+	addl $8, %esp
+
+	cmpl $1, %eax
+	je find2succ
+
+	pushl $failmsg
+	call puts
+	addl $4,%esp
+	jmp find2succend
+find2succ:
+	pushl $successmsg
+	call puts
+	addl $4,%esp
+find2succend:
 
 	movl $0, -48(%ebp)
 	jmp mfor3cnd
