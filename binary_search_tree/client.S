@@ -5,8 +5,19 @@ failmsg:
 	.string "FAILURE"
 rnmsg:
 	.string "After Removing %d\n"
+insuccmsg:
+	.string "INORDER SUCCESSOR of %d is %d\n"
+innosuccmsg:
+	.string "INORDER SUCCESSOR no Successor for %d\n"
 
 .section .text
+.equ BST_INVALID,0
+.equ SUCCESS,1
+.equ BST_EMPTY,2
+.equ BST_DATA_NOT_FOUND,3
+.equ BST_NO_PREDECESSOR,4
+.equ BST_NO_SUCCESSOR,5
+
 .equ NUM_OF_NODES,10
 
 .globl main
@@ -14,7 +25,7 @@ rnmsg:
 main:
 	pushl %ebp
 	movl %esp, %ebp
-	subl $48, %esp
+	subl $52, %esp
 
 	movl $0, -4(%ebp)				# p_bst = NULL
 	
@@ -30,6 +41,7 @@ main:
 	movl $100, -8(%ebp)
 
 	movl $0, -48(%ebp)				# i =0
+	movl $0, -52(%ebp)				# succ_data = 0
 
 	call createBst
 	movl %eax, -4(%ebp)
@@ -52,6 +64,40 @@ mfor1cnd:
 	pushl -4(%ebp)
 	call inorder
 	addl $4,%esp
+
+	movl $0, -48(%ebp)
+	jmp mfor3cnd
+mfor3body:
+	movl -48(%ebp), %ecx
+	leal -52(%ebp), %ebx
+	pushl %ebx
+	pushl -44(%ebp,%ecx,4)
+	pushl -4(%ebp)
+	call inorderSuccessor
+	addl $12,%esp
+
+	cmpl $SUCCESS, %eax
+	jne mif2
+	movl -48(%ebp), %ecx
+	pushl -52(%ebp)
+	pushl -44(%ebp,%ecx,4)
+	pushl $insuccmsg
+	call printf
+	addl $12, %esp
+	jmp mfor3end
+
+mif2:
+	movl -48(%ebp), %ecx
+	pushl -44(%ebp,%ecx,4)
+	pushl $innosuccmsg
+	call printf
+	addl $12, %esp
+mfor3end:
+	addl $1,-48(%ebp)
+
+mfor3cnd:
+	cmpl $NUM_OF_NODES, -48(%ebp)
+	jl mfor3body
 
 	movl $0, -48(%ebp)
 	jmp mfor2cnd

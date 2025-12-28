@@ -211,7 +211,6 @@ rnif2end:
 	movl 12(%ebx), %edx
 	movl %edx, -4(%ebp)
 rnelse1end:
-	# assign del_node->parent left or right to succ_node
 
 	movl -8(%ebp), %ebx
 	cmpl $0, 4(%ebx)
@@ -303,6 +302,108 @@ inorderNodeLevel:
 	addl $4,%esp
 
 inlend:
+
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
+.globl inorderSuccessor
+.type inorderSuccessor, @function
+inorderSuccessor:
+	pushl %ebp
+	movl %esp, %ebp
+	subl $8, %esp
+
+	movl $0, -4(%ebp)		#e_node = NULL
+	movl $0, -8(%ebp)		#succ_node = NULL
+
+	pushl 12(%ebp)
+	pushl 8(%ebp)
+	call searchNode
+	addl $8,%esp
+
+	movl %eax, -4(%ebp)
+	movl $BST_DATA_NOT_FOUND, %ecx
+	cmpl $0, %eax
+	cmove %ecx, %eax
+	je isend
+
+	pushl -4(%ebp)
+	call inorderSuccessorNodeLevel
+	addl $4,%esp
+
+	movl %eax, -8(%ebp)
+	movl $BST_NO_SUCCESSOR, %ecx
+	cmpl $0, -8(%ebp)
+	cmove %ecx, %eax
+	je isend
+
+	movl 16(%ebp), %ebx
+	movl -8(%ebp), %edx
+	movl (%edx), %edx
+	movl %edx, (%ebx)
+
+	movl $SUCCESS, %eax
+isend:
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
+.type inorderSuccessorNodeLevel, @function
+inorderSuccessorNodeLevel:
+	pushl %ebp
+	movl %esp, %ebp
+	subl $8, %esp
+
+	movl $0, -4(%ebp)			# p_run = NULL 
+	movl $0, -8(%ebp)			# succ_node = NULL
+
+	movl 8(%ebp), %ebx
+	cmpl $0, 12(%ebx)
+	jne isnlif1
+
+	movl 8(%ebp), %ebx
+	movl %ebx, -4(%ebp)
+
+	jmp isnlwhile2
+isnlwhile2body:
+	movl -4(%ebp), %ebx
+	movl 4(%ebx), %ebx
+	movl %ebx, -4(%ebp)
+
+isnlwhile2:
+	movl -4(%ebp), %ebx
+	cmpl $0, 4(%ebx)
+	je isnlwhile2end
+	movl 4(%ebx), %ebx
+	movl 8(%ebx), %ebx
+	cmpl -4(%ebp), %ebx
+	jne isnlwhile2body
+
+isnlwhile2end:
+	movl -4(%ebp), %ebx
+	movl 4(%ebx), %ebx
+	movl %ebx, -8(%ebp)
+	jmp isnlif1end
+isnlif1:
+	movl 8(%ebp), %ebx
+	movl 12(%ebx), %ebx
+	movl %ebx,-4(%ebp)
+	jmp isnlwhile1
+isnlwhile1body:
+	movl 8(%ebx), %ebx
+	movl %ebx, -4(%ebp)
+
+isnlwhile1:
+	movl -4(%ebp), %ebx
+	cmpl $0, 8(%ebx)
+	jne isnlwhile1body
+
+	movl -4(%ebp), %ebx
+	movl %ebx, -8(%ebp)
+
+isnlif1end:
+	movl -8(%ebp), %eax
 
 	movl %ebp, %esp
 	popl %ebp
