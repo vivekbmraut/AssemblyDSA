@@ -117,8 +117,9 @@ removeNode:
 	movl $0, -4(%ebp)		# succ_node
 	movl $0, -8(%ebp)		# del_node
 
+	movl 8(%ebp), %ebx
 	pushl 12(%ebp)
-	pushl 8(%ebp)
+	pushl (%ebx)
 	call searchNode
 	addl $8,%esp
 
@@ -317,14 +318,15 @@ inorderSuccessor:
 	movl $0, -4(%ebp)		#e_node = NULL
 	movl $0, -8(%ebp)		#succ_node = NULL
 
+	movl 8(%ebp), %ebx
 	pushl 12(%ebp)
-	pushl 8(%ebp)
+	pushl (%ebx)
 	call searchNode
 	addl $8,%esp
 
 	movl %eax, -4(%ebp)
 	movl $BST_DATA_NOT_FOUND, %ecx
-	cmpl $0, %eax
+	cmpl $0, -4(%ebp)
 	cmove %ecx, %eax
 	je isend
 
@@ -409,6 +411,125 @@ isnlif1end:
 	popl %ebp
 	ret
 
+.globl inorderPredecessor
+.type inorderPredecessor, @function
+inorderPredecessor:
+	pushl %ebp
+	movl %esp, %ebp
+	subl $8, %esp
+
+	movl $0, -4(%ebp)		# e_node  = NULL
+	movl $0, -8(%ebp)		# pred_node	= NULL
+
+	movl 8(%ebp), %ebx
+	pushl 12(%ebp)
+	pushl (%ebx)
+	call searchNode
+	addl $8,%esp
+	movl %eax, -4(%ebp)
+
+	movl $BST_DATA_NOT_FOUND, %ecx
+	cmpl $0,-4(%ebp)
+	cmove %ecx, %eax
+	je ipend
+
+	# pushl $here1
+	# call puts
+	# addl $4,%esp
+
+	pushl -4(%ebp)
+	call inorderPredecessorNodeLevel
+	addl $4,%esp
+
+	movl %eax, -8(%ebp)
+	movl $BST_NO_PREDECESSOR, %ecx
+	cmpl $0, -8(%ebp)
+	cmove %ecx, %eax
+	je ipend
+
+	movl 16(%ebp), %ebx
+	movl -8(%ebp), %edx
+	movl (%edx),%edx
+	movl %edx,(%ebx)
+
+	movl $SUCCESS, %eax
+ipend:
+
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
+.type inorderPredecessorNodeLevel, @function
+inorderPredecessorNodeLevel:
+	pushl %ebp
+	movl %esp, %ebp
+	subl $8, %esp
+
+	movl $0, -4(%ebp)			#p_run
+	movl $0, -8(%ebp)			#pred_node
+
+	movl 8(%ebp),%ebx
+	cmpl $0, 8(%ebx)
+	jne ipnlif1
+	movl 8(%ebp), %ebx
+	movl %ebx, -4(%ebp)
+
+	
+	jmp ipnlwhile2
+ipnlwhile2body:
+	movl -4(%ebp), %ebx
+	movl 4(%ebx), %ebx
+	movl %ebx, -4(%ebp)
+
+ipnlwhile2:
+	movl -4(%ebp), %ebx
+	cmpl $0, 4(%ebx)
+	je ipnlwhile2end
+	
+	movl -4(%ebp), %ebx
+	movl 4(%ebx), %ebx
+	movl 12(%ebx),%ebx
+	cmpl %ebx,-4(%ebp)
+	jne ipnlwhile2body
+
+ipnlwhile2end:
+	# movl -4(%ebp), %ebx
+	# movl 4(%ebx),%ebx
+	# pushl %ebx
+	# pushl $datamsg
+	# call printf
+	# addl $8,%esp
+
+	movl -4(%ebp),%ebx
+	movl 4(%ebx), %ebx
+	movl %ebx, -8(%ebp)
+	
+	jmp ipnlifend
+ipnlif1:
+	movl 8(%ebp), %ebx
+	movl 8(%ebx), %ebx
+	movl %ebx, -4(%ebp)
+
+	jmp ipnlwhile1
+ipnlwhile1body:
+	movl 12(%ebx), %ebx
+	movl %ebx, -4(%ebp)
+
+ipnlwhile1:
+	movl -4(%ebp), %ebx
+	cmpl $0, 12(%ebx)
+	jne ipnlwhile1body
+
+	movl -4(%ebp), %ebx
+	movl %ebx, -8(%ebp)
+ipnlifend:
+
+	movl -8(%ebp),%eax
+
+	movl %ebp, %esp
+	popl %ebp
+	ret
+
 .type searchNode, @function
 searchNode:
 	pushl %ebp
@@ -418,7 +539,6 @@ searchNode:
 	movl $0, -4(%ebp)
 
 	movl 8(%ebp), %ebx
-	movl (%ebx), %ebx
 	movl %ebx, -4(%ebp)
 
 	jmp snwhile1
